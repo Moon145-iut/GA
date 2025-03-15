@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script type="module" src="firebaseauth.js"></script>
+    <script type="module" src="admin.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <button id="menuButton" class="menu-button">☰ Menu</button>
+    </header>
+    <div id="sidebar" class="sidebar">
+        <a href="#" id="closeButton" class="close-btn">&times;</a>
+        <a href="index.html" id="homeLink">Home</a>
+        <a href="upload_videos.html" id="uploadVideosLink">Upload Videos</a>
+        <a href="all_videos.html" id="allVideosLink">All Videos</a>
+        <a href="edit_profile.html" id="editProfileLink">Edit Profile</a>
+        <a href="#" id="logoutLink">Logout</a>
+    </div>
+    <main>
+        <h2>Welcome to the Admin Dashboard</h2>
+        <p>Manage your content and videos here.</p>
+        <button id="detailsButton">Details</button>
+        <button id="createEventButton" onclick="location.href='create_event.html'">Create Event</button>
+        <button id="postNoticeButton">Post Notice</button> <!-- New Post Notice Button -->
+    
+        <div id="userDetails" style="display: none;">
+            <h3>Existing Users</h3>
+            <ul id="userList">
+                <!-- User list dynamically populated here -->
+            </ul>
+            <a href="all_users.html" id="viewAllLink">View All</a>
+        </div>
+
+        <!-- Notice Posting Form -->
+        <div id="postNoticeForm" style="display: none; margin-top: 20px;">
+            <h3>Post a Notice</h3>
+           <!-- Post Notice Section -->
+    <section id="postNoticeSection">
+       
+        <div id="postNoticeForm" style="display: flex;">
+            <form id="noticeForm">
+                <input type="text" id="noticeTitle" placeholder="Notice Title" required />
+                <textarea id="noticeDetails" placeholder="Notice Details" required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </section>
+        </div>
+    </main>
+</body>
+</html>

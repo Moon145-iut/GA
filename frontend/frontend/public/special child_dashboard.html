@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script type="module" src="firebaseauth.js"></script>
+    <script type="module" src="special child.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Special child Dashboard</h1>
+        <button id="menuButton" class="menu-button">☰ Menu</button>
+    </header>
+    <div id="sidebar" class="sidebar">
+        <a href="#" id="closeButton" class="close-btn">&times;</a>
+        <a href="index.html" id="homeLink">Home</a>
+       
+        <a href="#" id="logoutLink">Logout</a>
+    </div>
+    
+    <main>
+        <div id="setsContainer">
+            <h2>Available Sets</h2>
+            <div id="setsList"></div>
+        </div>
+        
+        <div id="quizContainer" style="display: none;">
+            <h2 id="setTitle"></h2>
+            <div id="questionsList"></div>
+            <button id="submitQuiz" style="display: none;">Submit Quiz</button>
+            <p id="quizResult" style="margin-top: 20px; font-weight: bold;"></p>
+            <button id="goBackButton" style="display: none;">Go Back to Dashboard</button>
+        </div> 
+    </main>
+    <!-- Make sure the script is included here -->
+    
+</body>
+</html>

@@ -16,23 +16,39 @@
         <section class="subjects">
             <h2>Subjects</h2>
             <div class="tiles">
-                <div class="tile" id="mathTile" onclick="showSubject('Math')">
+                <div class="tile" id="mathTile">
                     <h3>Math</h3>
                     <p>Learn shapes, numbers, and simple patterns.</p>
                 </div>
-                <div class="tile" id="scienceTile" onclick="showSubject('Science')">
+                <div class="tile" id="scienceTile">
                     <h3>Science</h3>
                     <p>Explore experiments and nature.</p>
                 </div>
-                <div class="tile" id="artTile" onclick="showSubject('Art')">
+                <div class="tile" id="artTile">
                     <h3>Art</h3>
                     <p>Creative expression through drawing and painting.</p>
                 </div>
-                <div class="tile" id="musicTile" onclick="showSubject('Music')">
-                    <h3>Music</h3>
-                    <p>Enjoy fun sounds and rhythms.</p>
+                <div class="tile" id="musicTile">
+                    <a href="music.html" style="text-decoration: none; color: inherit;">
+                        <h3>Words</h3>
+                        <p>Enjoy fun sounds and rhythms.</p>
+                    </a>
                 </div>
             </div>
+        </section>
+
+        <section class="levels" id="levelsContainer">
+            <!-- Level options will be displayed here -->
+        </section>
+
+        <section class="content" id="contentContainer">
+            <!-- Tutorial and resource content will be displayed here -->
+        </section>
+
+        <section class="quiz-section" id="quizSection" style="display: none;">
+            <h3 id="quizTitle"></h3>
+            <div id="quizContent"></div>
+            <button onclick="submitQuiz()">Submit Quiz</button>
         </section>
 
         <section class="activities">
@@ -57,6 +73,9 @@
             <h2>Contact Us</h2>
             <p>Email: info@eschool.com | Phone: 123-456-7890</p>
         </footer>
+
     </div>
+
+    <script src="eschool.js"></script>
 </body>
 </html>

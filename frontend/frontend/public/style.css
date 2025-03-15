@@ -108,34 +108,80 @@ html{
     color: black;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.profile-container {
+    cursor: pointer;
+    margin-left: 20px;
+}
+.auth-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    transition: transform 0.3s ease;
+}
+
+.profile-pic:hover {
+    transform: scale(1.1);
+}
+
 html {
     scroll-behavior: smooth; /* Enables smooth scroll behavior */
 }
-body {
-    margin-top: 80px;
-}
 
-/* Home Section */
-#home{
-    display: flex;
-    flex-direction: column;
-    padding:3px 200px;
-    height: 550px;
-    justify-content: center;
-    align-items: center;
-}
 
-#home::before{ 
+/* Hero Section */
+#home {
+    position: relative;
+    min-height: 100vh; /* Ensures the section spans full viewport height */
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
+    padding: 0 20px; /* Some horizontal padding for breathing room */
+  }
+  
+  #home::before {
     content: "";
     position: absolute;
     background: url('ev.jpg') no-repeat center center/cover;
-    height: 642px;
-    top:0px;
-    left:0px;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
     z-index: -1;
-    opacity:0.89;
-}
+    opacity: 0.89;
+  }
+  
+  /* The hero-content container */
+  .hero-content {
+    max-width: 800px; /* Limits the width so it doesn't stretch too far */
+    margin: 10 auto;
+    color: #fff; /* Ensures text is visible over background */
+    z-index: 1;  /* Content should be above the background image */
+  }
+  
+  .hero-content h1 {
+    margin-bottom: 20px;
+  }
+  
+  .hero-content p {
+    margin-bottom: 10px;
+  }
+  
+  /* Button styling (optional) */
+  .hero-content .btn {
+    margin-top: 20px;
+  }
+  
 
 #home h1{
     color:rgb(255, 255, 255);
@@ -150,83 +196,89 @@ body {
     font-family: 'Bree Serif', serif;
 }
 /* Services Section */
-#services{
-    margin: 34px;
-    display: flex;
-}
-#services .box{ 
-    border: 0px solid rgb(42, 122, 165);
-    padding: 0px;
-    margin: 2px 55px;
-    box-shadow: #f2f2f2;
-    background: #f2f2f2;
-	border-radius: 5%;
-    margin-bottom: 20px;
-	transition: box-shadow 0.3s ease;
-}
-#services .box:hover {
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
+/* Grid Container for Services */
+#services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
 }
 
-#services .box img { 
-    height: 180px;
-    width: 100%; /* Ensures the image fits the width of the box */
-    object-fit: cover; /* Ensures the image covers the area without distortion */
-    border-radius: 10%; /* Optional: Matches the box's border radius */
-}
-
-#services .box p{
-    font-family: 'Bree Serif', serif;
-
-} 
-#clients {
-    display: grid; /* Use CSS Grid layout */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
-    gap: 20px; /* Space between grid items */
-    justify-items: center; /* Center items in their grid cells */
-}
-
-/* Clients Section */
-#client-section{ 
-    position: center;
-	margin: 20px; /* Optional: Add spacing between items */
-    transition: transform 0.3s ease; /* Smooth transition for hover effect */
-}
-.event-title {
-    font-size: 1.2rem; /* Adjust the font size as needed */
-    margin-top: 10px; /* Space between image and title */
-    color: #333; /* Change text color if needed */
-}
-#client-section::before{
- content: "";
- position: absolute;
- background: url('ev.jpg');
- width: 100%;
- height: 100%;
- z-index: -1;
- opacity: 0.3;
-}
-
-.client-item {
-    text-align: center; /* Center the text under the images */
-    border-radius: 8px; /* Optional: Add rounded corners */
-    overflow: hidden; /* Ensure no overflow from rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transition effects */
-}
-
-#clients img{
-	width: 100%; /* Make the image responsive */
-    height: auto; /* Maintain aspect ratio */
-    border-radius: 8px; /* Optional: Add rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+/* Grid Items for Services */
+#services .box {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.client-item:hover img {
-    transform: scale(1.05); /* Scale image slightly on hover */
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); /* Increase shadow on hover */
+
+#services .box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+#services .box img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+#services .box h3 {
+    font-size: 1.5em;
+    margin: 15px 0 10px;
+    color: #0056b3;
+}
+
+#services .box p {
+    font-size: 1em;
+    color: #555;
+}
+
+/* Grid Container for Events */
+#clients {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Grid Items for Events */
+.client-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.client-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.client-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.client-item h3 {
+    font-size: 1.5em;
+    margin: 15px 0 10px;
+    color: #0056b3;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    #services, #clients {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
 
 /* Contact Section */
 #contact{
@@ -287,14 +339,15 @@ footer{
 }
 
 .btn {
-    padding: 6px 20px;
-    border: 2px solid rgb(16, 140, 157);
+    padding: 2px 20px;
+    border: 2px solid rgb(42, 128, 165);
     background-color: rgb(42, 128, 165);
     color: white;
     margin: 17px;
     font-size: 1.5rem;
     border-radius: 10px;
     cursor: pointer;
+    box-shadow: #333;
     transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Transition for smooth effect */
 }
 
@@ -309,51 +362,51 @@ footer{
 .center{
     text-align: center;
 }
-/* News Section */
 #news {
-    padding: 50px 20px;
     background-color: #f9f9f9;
+    padding: 40px 0;
 }
 
 #news .container {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 15px;
 }
 
 #news .section-title {
     text-align: center;
-    font-size: 32px;
-    margin-bottom: 40px;
+    font-size: 2em;
+    margin-bottom: 30px;
+    color: #333;
 }
 
-#news .row {
+#noticeList {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 20px;
 }
 
-#news .column {
-    flex: 1;
-    margin: 0 20px;
-    padding: 20px;
+.notice-box {
     background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border: 1px solid #ddd;
     border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 1.1em;
+    color: #333;
 }
 
-#news .column h3 {
-    font-size: 24px;
-    margin-bottom: 20px;
+.notice-box h3 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #0056b3;
 }
 
-#news .column ul {
-    list-style-type: none;
-    padding: 0;
+.notice-box p {
+    font-size: 1em;
+    color: #555;
 }
 
-#news .column ul li {
-    margin-bottom: 10px;
-    font-size: 16px;
-}
 
 .submit-btn {
     background-color: #4c7daf; /* Green */
@@ -391,6 +444,13 @@ footer{
     background-color: #45a049; /* Darker green on hover */
 }
 
+.video-link {
+    text-decoration: underline; /* Adds underline to the link */
+}
+.video-pic {
+    display: block; /* Ensures the image remains visible */
+}
+
 
 /* For responsiveness, stack the columns on smaller screens */
 @media screen and (max-width: 768px) {
@@ -398,3 +458,4 @@ footer{
         flex-direction: column;
     }
 }
+

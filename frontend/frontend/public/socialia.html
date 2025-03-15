@@ -9,12 +9,26 @@
 </head>
 <body>
   <div class="container">
-    <h1>Connect with Special People</h1>
+    <h1>Connect with People</h1>
+    
+    <!-- Profiles Section -->
     <div class="profile-grid" id="profileGrid">
-      <!-- Profiles will be added here -->
+      <!-- Profiles will be dynamically loaded here -->
+    </div>
+
+    <!-- Received Requests Section -->
+    <div class="received-requests" id="receivedRequests">
+      <h2>Received Connection Requests</h2>
+      <div id="requestsList">
+        <!-- Received requests will be dynamically loaded here -->
+      </div>
+    </div>
+    <div id="connectedUsersSection">
+      <h2>Connected Users</h2>
+      <div id="connectedUsersList"></div>
     </div>
   </div>
 
-  <script src="socia.js"></script>
+  <script type="module" src="socia.js"></script>
 </body>
 </html>

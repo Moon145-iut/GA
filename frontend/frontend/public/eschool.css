@@ -120,3 +120,96 @@ footer {
     text-align: center;
     padding: 20px 0;
 }
+
+.levels {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.level-option {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #e8f4ff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.level-option h4 {
+    margin: 10px 0;
+    font-size: 1.5em;
+}
+
+.level-option button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.level-option button:hover {
+    background-color: #45a049;
+}
+
+.content {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.video-placeholder {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-placeholder p {
+    font-size: 1.2em;
+    color: #333;
+}
+
+.video-placeholder video {
+    width: 80%;
+    max-width: 600px;
+    margin-top: 10px;
+}
+
+.resource-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.resource-list ul li {
+    margin: 10px 0;
+}
+
+.resource-list a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.resource-list a:hover {
+    text-decoration: underline;
+}
+
+/* Quiz Section Styles */
+.quiz-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.quiz-section button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.quiz-section button:hover {
+    background-color: #45a049;
+}

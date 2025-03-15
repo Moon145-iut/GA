@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users</title>
+    <script type="module">
+        // Import required Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+    apiKey: "AIzaSyAL0UKvBVHertMHi9Zg0zJZdHgydXXxzIM",
+    authDomain: "login-8133e.firebaseapp.com",
+    projectId: "login-8133e",
+    storageBucket: "login-8133e.firebasestorage.app",
+    messagingSenderId: "668804295177",
+    appId: "1:668804295177:web:fb0bba99c987da360a26d8"
+  };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to load all users
+        async function loadAllUsers() {
+            const allUsersList = document.getElementById("allUsersList");
+            try {
+                // Reference to the "users" collection
+                const usersRef = collection(db, "users");
+                const usersSnapshot = await getDocs(usersRef);
+
+                // Clear the list before populating
+                allUsersList.innerHTML = "";
+
+                // Check if the collection is empty
+                if (usersSnapshot.empty) {
+                    allUsersList.textContent = "No users found.";
+                    return;
+                }
+
+                // Iterate through each document in the collection
+                usersSnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    const name = user.firstName || "No Name"; // Default if name is missing
+                    const email = user.email || "No Email"; // Default if email is missing
+
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${name} (${email})`;
+                    allUsersList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error("Error loading users:", error);
+                allUsersList.textContent = "Error loading users. Please check the console for details.";
+            }
+        }
+
+        // Call the function to load users on page load
+        document.addEventListener("DOMContentLoaded", loadAllUsers);
+    </script>
+</head>
+<body>
+    <h1>All Users</h1>
+    <ul id="allUsersList">
+        <!-- User data will be populated here -->
+    </ul>
+</body>
+</html>

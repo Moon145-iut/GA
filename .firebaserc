@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "authentication-39604",
+    "firebase storage:bucket:set-cors cors.jsonfirebase storage:bucket:set-cors cors.json": "login-8133e"
+  },
+  "targets": {},
+  "etags": {}
+}

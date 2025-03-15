@@ -1,0 +1,125 @@
+/* General styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  /* Header */
+  h1 {
+    background-color: #0078ff;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 15px;
+    font-size: 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Chat messages container */
+  #chatMessages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #e5e5e5;
+  }
+  
+  /* Individual messages */
+  .message {
+    display: flex;
+    align-items: flex-end;
+    max-width: 70%;
+    gap: 10px;
+  }
+  
+  /* Sent messages (user's side) */
+  .message.sent {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+  
+  .message.sent .text {
+    background-color: #0078ff;
+    color: white;
+  }
+  
+  /* Received messages (other user's side) */
+  .message.received {
+    align-self: flex-start;
+  }
+  
+  .message.received .text {
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  
+  /* Profile pictures */
+  .profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Message bubble */
+  .text {
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+  
+  /* Chat input */
+  #chatForm {
+    display: flex;
+    padding: 10px;
+    background-color: white;
+    border-top: 1px solid #ccc;
+  }
+  
+  #messageInput {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 25px;
+    background-color: #f1f1f1;
+    font-size: 14px;
+    outline: none;
+    margin-right: 10px;
+  }
+  
+  #chatForm button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    background-color: #0078ff;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  #chatForm button:hover {
+    background-color: #005bb5;
+  }
+  
+  /* Scrollbar */
+  #chatMessages::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  #chatMessages::-webkit-scrollbar-thumb {
+    background-color: #0078ff;
+    border-radius: 4px;
+  }
+  
+  #chatMessages::-webkit-scrollbar-track {
+    background-color: #e5e5e5;
+  }
+  
