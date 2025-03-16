@@ -123,11 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load user uploaded videos from localStorage
   const loadUploadedVideos = () => {
     const storedVideos = localStorage.getItem('uploadedVideos');
+    const currentUser = JSON.parse(localStorage.getItem('userProfile') || '{}');
+    
     if (storedVideos) {
       try {
         const videoMetadata = JSON.parse(storedVideos);
-        // Store separately for both all videos and user uploaded videos
-        window.uploadedVideos = [...videoMetadata];
+        // Filter videos for current user
+        window.uploadedVideos = videoMetadata.filter(video => video.userId === currentUser.uid);
+        // All videos remain unfiltered
         window.allVideos = [...videoMetadata];
       } catch (error) {
         console.error('Error parsing stored videos:', error);
@@ -935,82 +938,7 @@ function showPlaylistsContent() {
 
 // Show watch later content
 function showLiveContent() {
-  if (!isUserLoggedIn()) {
-    showEmptyState(
-      'Sign in to access live streams', 
-      'Create or watch live streams by signing in', 
-      'Sign In'
-    );
-    return;
-  }
-
-  const mainContent = document.querySelector('.main-content');
-  const activeStreams = getActiveStreams();
-  
-  mainContent.innerHTML = `
-    <div class="custom-content">
-      <div class="live-header">
-        <h2>Live Streaming</h2>
-        <button class="start-stream-btn browse-button">
-          <i class="material-icons">videocam</i>
-          Go Live
-        </button>
-      </div>
-
-      ${activeStreams.length === 0 ? `
-        <div class="no-streams-message">
-          <i class="material-icons">live_tv</i>
-          <h3>No active streams</h3>
-          <p>Start streaming or wait for other creators to go live</p>
-        </div>
-      ` : `
-        <div class="active-streams">
-          <h3>Live Now</h3>
-          <div class="video-grid">
-            ${activeStreams.map(stream => `
-              <div class="video-card live-stream-card" data-stream-id="${stream.id}">
-                <div class="video-thumbnail">
-                  <img src="${stream.thumbnail}" alt="${stream.title}">
-                  <div class="live-badge">LIVE</div>
-                  <div class="viewer-count">
-                    <i class="material-icons">visibility</i>
-                    <span>${stream.viewerCount}</span>
-                  </div>
-                </div>
-                <div class="video-info">
-                  <div class="channel-icon">
-                    <img src="${stream.broadcasterIcon}" alt="${stream.broadcasterName}">
-                  </div>
-                  <div class="video-details">
-                    <h3 class="video-title">${stream.title}</h3>
-                    <p class="channel-name">${stream.broadcasterName}</p>
-                    <p class="stream-meta">${stream.category} • Started ${stream.startedAgo}</p>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `}
-    </div>
-  `;
-
-  // Add event listeners
-  const startStreamBtn = mainContent.querySelector('.start-stream-btn');
-  if (startStreamBtn) {
-    startStreamBtn.addEventListener('click', showStreamSetup);
-  }
-
-  // Add click handlers for stream cards
-  mainContent.querySelectorAll('.live-stream-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const streamId = card.dataset.streamId;
-      const stream = activeStreams.find(s => s.id === streamId);
-      if (stream) {
-        watchStream(stream);
-      }
-    });
-  });
+  showEmptyState('No saved videos', 'Videos that you save will show up here', 'Browse videos');
 }
 
 // Show liked videos content
@@ -1063,14 +991,21 @@ function showLikedVideosContent() {
 
 // Show channel content
 function showChannelContent(channelName) {
+  // Find user ID associated with channel name
   const channelVideos = window.allVideos.filter(video => video.channelName === channelName);
+  const channelUserId = channelVideos[0]?.userId;
   
-  if (channelVideos.length === 0) {
+  // Filter videos for this channel's user
+  const userChannelVideos = channelUserId ? 
+    window.allVideos.filter(video => video.userId === channelUserId) : 
+    channelVideos;
+  
+  if (userChannelVideos.length === 0) {
     showEmptyState('No videos from this channel', 'This channel hasn\'t uploaded any videos yet', 'Browse videos');
     return;
   }
   
-  const channelIcon = channelVideos[0].channelIcon;
+  const channelIcon = userChannelVideos[0].channelIcon;
   const isSubscribed = checkIfSubscribed(channelName);
   
   const mainContent = document.querySelector('.main-content');
@@ -1094,7 +1029,7 @@ function showChannelContent(channelName) {
       </div>
       
       <div class="video-grid">
-        ${channelVideos.map(video => `
+        ${userChannelVideos.map(video => `
           <div class="video-card" data-id="${video.id}">
             <div class="video-thumbnail">
               <img src="${video.thumbnail}" alt="${video.title}">
@@ -1455,68 +1390,144 @@ function setupUploadFunctionality() {
 
 // Upload video to Cloudinary
 async function uploadVideo(videoFile, thumbnailFile, title, description, category) {
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  
+  // Check if user is logged in
+  if (!userProfile.uid) {
+    showToast('Please sign in to upload videos');
+    throw new Error('User not authenticated');
+  }
+
   const progressContainer = document.querySelector('.progress-container');
   const progressBar = document.getElementById('uploadProgress');
   const progressText = document.querySelector('.progress-text');
   
-  // Show progress
-  let progress = 0;
-  const interval = setInterval(() => {
-    if (progress >= 90) {
-      clearInterval(interval);
-      return;
-    }
-    progress += Math.random() * 10;
-    progressBar.style.width = `${progress}%`;
-    progressText.textContent = `${Math.floor(progress)}%`;
-  }, 500);
-  
   try {
-    // Upload video to Cloudinary
-    const videoUrl = await uploadToCloudinary(videoFile, 'my_upload_preset');
-    
-    // Upload thumbnail to Cloudinary if provided, otherwise use a placeholder
-    const thumbnailUrl = thumbnailFile
-      ? await uploadToCloudinary(thumbnailFile, 'my_upload_preset')
-      : 'https://picsum.photos/320/180?random=' + Date.now();
-    
-    // Complete the progress bar
-    clearInterval(interval);
-    progressBar.style.width = '100%';
-    progressText.textContent = '100%';
-    
+    // Show initial progress
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '10%';
+    progressText.textContent = '10%';
+
+    // Upload video to Cloudinary with proper error handling
+    const videoFormData = new FormData();
+    videoFormData.append('file', videoFile);
+    videoFormData.append('upload_preset', 'my_upload_preset');
+    videoFormData.append('resource_type', 'video');
+
+    // Upload video
+    const videoResponse = await fetch('https://api.cloudinary.com/v1_1/dra4ykviv/video/upload', {
+      method: 'POST',
+      body: videoFormData
+    });
+
+    if (!videoResponse.ok) {
+      throw new Error('Video upload failed');
+    }
+
+    const videoData = await videoResponse.json();
+    progressBar.style.width = '60%';
+    progressText.textContent = '60%';
+
+    // Upload thumbnail or create one from video
+    let thumbnailUrl;
+    if (thumbnailFile) {
+      const thumbnailFormData = new FormData();
+      thumbnailFormData.append('file', thumbnailFile);
+      thumbnailFormData.append('upload_preset', 'my_upload_preset');
+
+      const thumbnailResponse = await fetch('https://api.cloudinary.com/v1_1/dra4ykviv/image/upload', {
+        method: 'POST',
+        body: thumbnailFormData
+      });
+
+      if (!thumbnailResponse.ok) {
+        throw new Error('Thumbnail upload failed');
+      }
+
+      const thumbnailData = await thumbnailResponse.json();
+      thumbnailUrl = thumbnailData.secure_url;
+    } else {
+      // Use Cloudinary's video thumbnail if no thumbnail provided
+      thumbnailUrl = videoData.secure_url.replace('/upload/', '/upload/w_320,h_180,c_fill,g_auto/').replace(/\.[^/.]+$/, ".jpg");
+    }
+
+    progressBar.style.width = '90%';
+    progressText.textContent = '90%';
+
     // Create new video object
     const newVideo = {
       id: 'v' + Date.now(),
       title,
       description,
-      channelName: 'Your Channel',
-      channelIcon: 'https://picsum.photos/36/36?random=' + Math.floor(Math.random() * 100),
+      channelName: userProfile.displayName || 'Anonymous User',
+      channelIcon: userProfile.photoURL || 'https://picsum.photos/36/36?random=' + Math.floor(Math.random() * 100),
       views: '0 views',
       uploadedAgo: 'Just now',
-      duration: formatVideoDuration(videoFile),
+      duration: await getVideoDuration(videoFile),
       thumbnail: thumbnailUrl,
-      videoUrl: videoUrl,
-      category
+      videoUrl: videoData.secure_url,
+      category,
+      userId: userProfile.uid
     };
-    
-    // Add to videos array
+
+    // Update arrays and storage
     window.allVideos.unshift(newVideo);
     window.uploadedVideos.unshift(newVideo);
-    
-    // Update local storage
     saveVideoToLocalStorage(newVideo);
-    
-    // Render videos
-    renderVideos(window.allVideos);
-    
+
+    // Complete progress
+    progressBar.style.width = '100%';
+    progressText.textContent = '100%';
+
     showToast('Video uploaded successfully!');
+    return newVideo;
+
   } catch (error) {
-    clearInterval(interval);
-    console.error('Error uploading to Cloudinary:', error);
+    console.error('Upload error:', error);
+    showToast('Upload failed: ' + error.message);
     throw error;
   }
 }
+
+// Add helper function to get video duration
+function getVideoDuration(videoFile) {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      window.URL.revokeObjectURL(video.src);
+      const duration = Math.round(video.duration);
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      resolve(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+    };
+    video.src = URL.createObjectURL(videoFile);
+  });
+}
+
+// Modify the save to storage function
+function saveVideoToLocalStorage(video) {
+  const storedVideos = JSON.parse(localStorage.getItem('uploadedVideos') || '[]');
+  storedVideos.unshift(video);
+  
+  try {
+    localStorage.setItem('uploadedVideos', JSON.stringify(storedVideos));
+    window.uploadedVideos = storedVideos.filter(v => v.userId === video.userId);
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+    // If localStorage is full, remove oldest videos
+    while (storedVideos.length > 0) {
+      storedVideos.pop();
+      try {
+        localStorage.setItem('uploadedVideos', JSON.stringify(storedVideos));
+        break;
+      } catch (e) {
+        continue;
+      }
+    }
+  }
+}
+
 // From script.js
 fetch('videos.json')
   .then(response => response.json())
@@ -1590,6 +1601,10 @@ function setupUserProfileMenu() {
 // Show user channel page
 function showUserChannelPage() {
   const mainContent = document.querySelector('.main-content');
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  
+  // Filter videos for this user
+  const userVideos = window.allVideos.filter(video => video.userId === userProfile.uid);
   
   const subscribersCount = Math.floor(Math.random() * 100) + 'K';
   const joinedDate = 'Joined ' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -1617,14 +1632,14 @@ function showUserChannelPage() {
       </div>
       
       <div class="video-grid">
-        ${window.uploadedVideos.length === 0 ? 
+        ${userVideos.length === 0 ? 
           `<div class="no-results">
             <i class="material-icons">videocam_off</i>
             <h3>No videos uploaded yet</h3>
             <p>Your uploaded videos will appear here</p>
           </div>` 
           : 
-          window.uploadedVideos.map(video => `
+          userVideos.map(video => `
             <div class="video-card" data-id="${video.id}">
               <div class="video-thumbnail">
                 <img src="${video.thumbnail}" alt="${video.title}">
@@ -1673,8 +1688,11 @@ function showUserDashboard() {
     headerProfileImg.src = profilePic;
   }
 
-  // Calculate stats
-  const totalViews = window.uploadedVideos.reduce((sum, video) => {
+  // Filter videos for current user
+  const userVideos = window.allVideos.filter(video => video.userId === userProfile.uid);
+
+  // Calculate stats for user's videos only
+  const totalViews = userVideos.reduce((sum, video) => {
     const viewsText = video.views.replace(/K views|M views|views/g, '').trim();
     let viewCount = parseFloat(viewsText);
     if (viewsText.includes('K')) viewCount *= 1000;
@@ -1695,7 +1713,7 @@ function showUserDashboard() {
           </div>
           <div class="user-stats">
             <div class="stat">
-              <span class="stat-value">${window.uploadedVideos.length}</span>
+              <span class="stat-value">${userVideos.length}</span>
               <span class="stat-label">Videos</span>
             </div>
             <div class="stat">
@@ -1725,7 +1743,7 @@ function showUserDashboard() {
             <button class="upload-video-btn browse-button">Upload Video</button>
           </div>
           
-          ${window.uploadedVideos.length === 0 ? 
+          ${userVideos.length === 0 ? 
             `<div class="no-results">
               <i class="material-icons">videocam_off</i>
               <h3>No videos uploaded yet</h3>
@@ -1734,7 +1752,7 @@ function showUserDashboard() {
             </div>` 
             : 
             `<div class="video-grid dashboard-videos">
-              ${window.uploadedVideos.map(video => `
+              ${userVideos.map(video => `
                 <div class="video-card" data-id="${video.id}">
                   <div class="video-thumbnail">
                     <img src="${video.thumbnail}" alt="${video.title}">
@@ -1748,6 +1766,9 @@ function showUserDashboard() {
                         <button class="video-action" title="Edit"><i class="material-icons">edit</i></button>
                         <button class="video-action" title="Analytics"><i class="material-icons">analytics</i></button>
                         <button class="video-action" title="Comments"><i class="material-icons">comment</i></button>
+                        <button class="video-action delete-btn" title="Delete" onclick="deleteVideo('${video.id}')">
+                          <i class="material-icons">delete</i>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -2000,303 +2021,197 @@ function addToHistory(video) {
   localStorage.setItem('watchHistory', JSON.stringify(filteredHistory));
 }
 
-// Add these new functions for live streaming
-function isUserLoggedIn() {
+// Add this function to handle video deletion
+async function deleteVideo(videoId) {
   const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-  return Boolean(userProfile.username);
-}
-
-function getActiveStreams() {
-  return JSON.parse(localStorage.getItem('activeStreams') || '[]');
-}
-
-function addActiveStream(stream) {
-  const streams = getActiveStreams();
-  streams.unshift(stream);
-  localStorage.setItem('activeStreams', JSON.stringify(streams));
-}
-
-function removeActiveStream(streamId) {
-  const streams = getActiveStreams();
-  const filteredStreams = streams.filter(s => s.id !== streamId);
-  localStorage.setItem('activeStreams', JSON.stringify(filteredStreams));
-}
-
-// Update the showLiveContent function
-function showLiveContent() {
-  if (!isUserLoggedIn()) {
-    showEmptyState(
-      'Sign in to access live streams', 
-      'Create or watch live streams by signing in', 
-      'Sign In'
-    );
+  const video = window.allVideos.find(v => v.id === videoId);
+  
+  if (!video || video.userId !== userProfile.uid) {
+    showToast('You can only delete your own videos');
     return;
   }
 
-  const mainContent = document.querySelector('.main-content');
-  const activeStreams = getActiveStreams();
-  
-  mainContent.innerHTML = `
-    <div class="custom-content">
-      <div class="live-header">
-        <h2>Live Streaming</h2>
-        <button class="start-stream-btn browse-button">
-          <i class="material-icons">videocam</i>
-          Go Live
-        </button>
-      </div>
-
-      ${activeStreams.length === 0 ? `
-        <div class="no-streams-message">
-          <i class="material-icons">live_tv</i>
-          <h3>No active streams</h3>
-          <p>Start streaming or wait for other creators to go live</p>
-        </div>
-      ` : `
-        <div class="active-streams">
-          <h3>Live Now</h3>
-          <div class="video-grid">
-            ${activeStreams.map(stream => `
-              <div class="video-card live-stream-card" data-stream-id="${stream.id}">
-                <div class="video-thumbnail">
-                  <img src="${stream.thumbnail}" alt="${stream.title}">
-                  <div class="live-badge">LIVE</div>
-                  <div class="viewer-count">
-                    <i class="material-icons">visibility</i>
-                    <span>${stream.viewerCount}</span>
-                  </div>
-                </div>
-                <div class="video-info">
-                  <div class="channel-icon">
-                    <img src="${stream.broadcasterIcon}" alt="${stream.broadcasterName}">
-                  </div>
-                  <div class="video-details">
-                    <h3 class="video-title">${stream.title}</h3>
-                    <p class="channel-name">${stream.broadcasterName}</p>
-                    <p class="stream-meta">${stream.category} • Started ${stream.startedAgo}</p>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `}
-    </div>
-  `;
-
-  // Add event listeners
-  const startStreamBtn = mainContent.querySelector('.start-stream-btn');
-  if (startStreamBtn) {
-    startStreamBtn.addEventListener('click', showStreamSetup);
+  // Show confirmation dialog
+  if (!confirm('Are you sure you want to delete this video?')) {
+    return;
   }
 
-  // Add click handlers for stream cards
-  mainContent.querySelectorAll('.live-stream-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const streamId = card.dataset.streamId;
-      const stream = activeStreams.find(s => s.id === streamId);
-      if (stream) {
-        watchStream(stream);
+  try {
+    // Remove from arrays
+    window.allVideos = window.allVideos.filter(v => v.id !== videoId);
+    window.uploadedVideos = window.uploadedVideos.filter(v => v.id !== videoId);
+
+    // Update localStorage
+    const storedVideos = JSON.parse(localStorage.getItem('uploadedVideos') || '[]');
+    const updatedVideos = storedVideos.filter(v => v.id !== videoId);
+    localStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
+
+    // Update UI
+    showUserDashboard();
+    showToast('Video deleted successfully');
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    showToast('Failed to delete video');
+  }
+}
+
+// Modify the dashboard video card template to include delete button
+function showUserDashboard() {
+  console.log('showUserDashboard function called');
+  const mainContent = document.querySelector('.main-content');
+  
+  // Get user profile from localStorage
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  const username = userProfile.username || 'User';
+  const displayName = userProfile.displayName || 'Your Channel';
+  // Use the stored profile picture or fallback to default
+  const profilePic = userProfile.photoURL || '/default-profile.png';
+  
+  // Update header profile picture
+  const headerProfileImg = document.querySelector('.user-profile img');
+  if (headerProfileImg) {
+    headerProfileImg.src = profilePic;
+  }
+
+  // Filter videos for current user
+  const userVideos = window.allVideos.filter(video => video.userId === userProfile.uid);
+
+  // Calculate stats for user's videos only
+  const totalViews = userVideos.reduce((sum, video) => {
+    const viewsText = video.views.replace(/K views|M views|views/g, '').trim();
+    let viewCount = parseFloat(viewsText);
+    if (viewsText.includes('K')) viewCount *= 1000;
+    if (viewsText.includes('M')) viewCount *= 1000000;
+    return sum + (isNaN(viewCount) ? 0 : viewCount);
+  }, 0);
+
+  mainContent.innerHTML = `
+    <div class="dashboard-container">
+      <div class="dashboard-header">
+        <div class="user-banner">
+          <div class="user-info">
+            <img src="${profilePic}" class="user-avatar" alt="${displayName}'s profile">
+            <div class="user-details">
+              <h1>${displayName}</h1>
+              <p>@${username}</p>
+            </div>
+          </div>
+          <div class="user-stats">
+            <div class="stat">
+              <span class="stat-value">${userVideos.length}</span>
+              <span class="stat-label">Videos</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">${totalViews}</span>
+              <span class="stat-label">Views</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">${Math.floor(Math.random() * 1000) + 100}</span>
+              <span class="stat-label">Subscribers</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-tabs">
+          <button class="dashboard-tab active">Dashboard</button>
+          <button class="dashboard-tab">Content</button>
+          <button class="dashboard-tab">Analytics</button>
+          <button class="dashboard-tab">Comments</button>
+          <button class="dashboard-tab">Customization</button>
+        </div>
+      </div>
+      
+      <div class="dashboard-content">
+        <div class="dashboard-section">
+          <div class="section-header">
+            <h2>Your Videos</h2>
+            <button class="upload-video-btn browse-button">Upload Video</button>
+          </div>
+          
+          ${userVideos.length === 0 ? 
+            `<div class="no-results">
+              <i class="material-icons">videocam_off</i>
+              <h3>No videos uploaded yet</h3>
+              <p>Your uploaded videos will appear here</p>
+              <button class="browse-button create-btn">Upload Video</button>
+            </div>` 
+            : 
+            `<div class="video-grid dashboard-videos">
+              ${userVideos.map(video => `
+                <div class="video-card" data-id="${video.id}">
+                  <div class="video-thumbnail">
+                    <img src="${video.thumbnail}" alt="${video.title}">
+                    <div class="video-duration">${video.duration}</div>
+                  </div>
+                  <div class="video-info">
+                    <div class="video-details" style="padding-left: 0;">
+                      <h3 class="video-title">${video.title}</h3>
+                      <p class="video-meta">${video.views} • ${video.uploadedAgo}</p>
+                      <div class="video-actions">
+                        <button class="video-action" title="Edit"><i class="material-icons">edit</i></button>
+                        <button class="video-action" title="Analytics"><i class="material-icons">analytics</i></button>
+                        <button class="video-action" title="Comments"><i class="material-icons">comment</i></button>
+                        <button class="video-action delete-btn" title="Delete" onclick="deleteVideo('${video.id}')">
+                          <i class="material-icons">delete</i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>`
+          }
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Add event listeners to video cards
+  document.querySelectorAll('.video-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't play video if clicked on action buttons
+      if (e.target.closest('.video-actions')) {
+        return;
       }
+      
+      const videoId = card.dataset.id;
+      const video = window.allVideos.find(v => v.id === videoId);
+      if (video) {
+        playVideo(video);
+      }
+    });
+  });
+  
+  // Add event listener to create/upload buttons
+  const uploadBtns = mainContent.querySelectorAll('.create-btn, .upload-video-btn');
+  uploadBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelector('.create-btn').click();
+    });
+  });
+  
+  // Highlight active tab - the dashboard tab is active by default
+  const dashboardTabs = mainContent.querySelectorAll('.dashboard-tab');
+  dashboardTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      dashboardTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      // We're not implementing other tabs in this version
+      showToast('This feature is coming soon!');
     });
   });
 }
 
-// Function to show stream setup modal
-function showStreamSetup() {
-  const modal = document.createElement('div');
-  modal.className = 'modal stream-setup-modal';
-  modal.innerHTML = `
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Start Streaming</h2>
-        <span class="close">&times;</span>
-      </div>
-      <div class="modal-body">
-        <form id="streamSetupForm">
-          <div class="form-group">
-            <label for="streamTitle">Stream Title*</label>
-            <input type="text" id="streamTitle" required>
-          </div>
-          <div class="form-group">
-            <label for="streamDescription">Description</label>
-            <textarea id="streamDescription"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="streamCategory">Category</label>
-            <select id="streamCategory">
-              <option value="Gaming">Gaming</option>
-              <option value="IRL">IRL</option>
-              <option value="Music">Music</option>
-              <option value="Education">Education</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="streamThumbnail">Thumbnail</label>
-            <input type="file" id="streamThumbnail" accept="image/*">
-            <div class="preview-container">
-              <img id="thumbnailPreview">
-            </div>
-          </div>
-          <div class="form-actions">
-            <button type="button" class="cancel-btn">Cancel</button>
-            <button type="submit" class="start-btn">Start Streaming</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  // Handle form submission
-  const form = modal.querySelector('#streamSetupForm');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    startStream(form);
-    modal.remove();
-  });
-
-  // Handle modal close
-  const closeBtn = modal.querySelector('.close');
-  const cancelBtn = modal.querySelector('.cancel-btn');
-  [closeBtn, cancelBtn].forEach(btn => {
-    btn.addEventListener('click', () => modal.remove());
-  });
-}
-
-// Function to start streaming
-function startStream(form) {
-  const streamData = {
-    id: 'stream_' + Date.now(),
-    title: form.streamTitle.value,
-    description: form.streamDescription.value,
-    category: form.streamCategory.value,
-    thumbnail: form.streamThumbnail.files[0] ? 
-      URL.createObjectURL(form.streamThumbnail.files[0]) : 
-      'https://picsum.photos/320/180?random=' + Date.now(),
-    broadcasterName: JSON.parse(localStorage.getItem('userProfile') || '{}').displayName || 'User',
-    broadcasterIcon: JSON.parse(localStorage.getItem('userProfile') || '{}').photoURL || '/default-profile.png',
-    startedAgo: 'just now',
-    viewerCount: 0
-  };
-
-  addActiveStream(streamData);
-  showLiveContent();
-  showToast('Stream started successfully!');
-}
-
-// Function to watch a stream
-function watchStream(stream) {
-  const streamPlayer = document.createElement('div');
-  streamPlayer.className = 'video-player-modal';
-  streamPlayer.innerHTML = `
-    <div class="video-player-header">
-      <button class="back-btn"><i class="material-icons">arrow_back</i></button>
-      <div class="stream-info">
-        <span class="live-badge">LIVE</span>
-        <span class="viewer-count">
-          <i class="material-icons">visibility</i>
-          ${stream.viewerCount}
-        </span>
-      </div>
-      <button class="close-player"><i class="material-icons">close</i></button>
-    </div>
-    <div class="video-player-container">
-      <div class="stream-player">
-        <div class="stream-placeholder">
-          <i class="material-icons">live_tv</i>
-          <h3>Live Stream</h3>
-          <p>You are watching ${stream.broadcasterName}'s stream</p>
-        </div>
-      </div>
-      <div class="stream-chat">
-        <div class="chat-messages"></div>
-        <div class="chat-input">
-          <input type="text" placeholder="Send a message...">
-          <button><i class="material-icons">send</i></button>
-        </div>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(streamPlayer);
-
-  // Handle close/back buttons
-  streamPlayer.querySelector('.close-player').addEventListener('click', () => {
-    streamPlayer.remove();
-  });
-  streamPlayer.querySelector('.back-btn').addEventListener('click', () => {
-    streamPlayer.remove();
-  });
-}
-
-// Add these CSS styles
-const liveStyles = document.createElement('style');
-liveStyles.textContent = `
-  .live-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
+// Add these styles for delete button
+const deleteStyles = document.createElement('style');
+deleteStyles.textContent = `
+  .delete-btn {
+    color: #cc0000 !important;
   }
-  
-  .live-badge {
-    background: #ff0000;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .viewer-count {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: white;
-    font-size: 14px;
-  }
-
-  .stream-setup-modal .modal-content {
-    max-width: 600px;
-  }
-
-  .stream-player {
-    aspect-ratio: 16/9;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .stream-chat {
-    height: 400px;
-    border: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-  }
-
-  .chat-input {
-    display: flex;
-    padding: 16px;
-    gap: 8px;
-    border-top: 1px solid #ddd;
-  }
-
-  .chat-input input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+  .delete-btn:hover {
+    background-color: rgba(204, 0, 0, 0.1) !important;
   }
 `;
-document.head.appendChild(liveStyles);
+document.head.appendChild(deleteStyles);
 
-// ...existing code...
+// ...rest of existing code...
