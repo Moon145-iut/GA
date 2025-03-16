@@ -1,3 +1,481 @@
+/** CSS Reset
+*{
+    margin: 0;
+    padding: 0;
+}
+
+html{
+    scroll-behavior: smooth;}
+
+
+:root{
+    --navbar-height: 59px;
+}
+
+
+#navbar{
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0px;
+}
+
+#navbar::before{
+    content: "";
+    background-color: black;
+    position: absolute;
+    top:0px;
+    left:0px;
+    height: 100%;
+    width:100%;
+    z-index: -1;
+    opacity: 0.7;
+}
+
+#logo{
+    margin: 10px 10px;
+}
+
+#logo img{
+    height: 59px;
+    margin: 0px 0cap;
+}
+
+
+#navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+	transition: top 0.3s;
+    z-index: 1000; 
+     ensure visibility 
+    padding: 10px 20px; /* Add some padding to make it look nice 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+#navbar ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+}
+
+#navbar ul li {
+    margin-right: 20px; 
+}
+
+#navbar ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#navbar ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Slight hover effect */
+
+
+/* Auth Links (Sign In, Login) 
+.auth-links {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.auth-links a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: 2px solid white;
+    border-radius: 30px;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block;
+}
+.auth-links a.btn-signin {
+    background-color: transparent;
+}
+.auth-links a.btn-login {
+    background-color: white;
+    color: black;
+}
+
+.auth-links a:hover {
+    background-color: white;
+    color: black;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-container {
+    cursor: pointer;
+    margin-left: 20px;
+    display: none; /* Hide by default 
+    display: none; /* Hidden by default 
+    align-items: center;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.profile-container.visible {
+    display: flex;
+}
+
+.auth-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.auth-links .btn-signin {
+    transition: all 0.3s ease;
+}
+
+.auth-links .btn-signin:hover {
+    background-color: #f44336; /* Red color for sign out 
+    border-color: #f44336;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    transition: transform 0.3s ease;
+}
+
+.profile-pic:hover {
+    transform: scale(1.1);
+}
+
+html {
+    scroll-behavior: smooth; /* Enables smooth scroll behavior */
+
+
+
+/* Hero Section 
+#home {
+    position: relative;
+    min-height: 100vh; /* Ensures the section spans full viewport height 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
+    padding: 0 20px; /* Some horizontal padding for breathing room 
+  }
+  
+  #home::before {
+    content: "";
+    position: absolute;
+    background: url('ev.jpg') no-repeat center center/cover;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.89;
+  }
+  
+  /* The hero-content container 
+  .hero-content {
+    max-width: 800px; /* Limits the width so it doesn't stretch too far 
+    margin: 10 auto;
+    color: #fff; /* Ensures text is visible over background 
+    z-index: 1;  /* Content should be above the background image 
+  }
+  
+  .hero-content h1 {
+    margin-bottom: 20px;
+  }
+  
+  .hero-content p {
+    margin-bottom: 10px;
+  }
+  
+  /* Button styling (optional) 
+  .hero-content .btn {
+    margin-top: 20px;
+  }
+  
+
+#home h1{
+    color:rgb(255, 255, 255);
+    text-align: center;
+    font-family: 'Bree Serif', serif;
+}
+
+#home p{
+    color:white;
+    text-align: center;
+    font-size: 1.5rem;
+    font-family: 'Bree Serif', serif;
+}
+
+#services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+#services .box {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#services .box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#services .box img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+#services .box h3 {
+    font-size: 1.5em;
+    margin: 15px 0 10px;
+    color: #0056b3;
+}
+
+#services .box p {
+    font-size: 1em;
+    color: #555;
+}
+
+#clients {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.client-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.client-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.client-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.client-item h3 {
+    font-size: 1.5em;
+    margin: 15px 0 10px;
+    color: #0056b3;
+}
+
+
+@media screen and (max-width: 768px) {
+    #services, #clients {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+#contact{
+    position: relative;
+}
+#contact::before{
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.7;
+    background: url('drkr.jpg') no-repeat center center/cover;
+
+}
+#contact-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 34px;
+}
+#contact-box input, 
+#contact-box textarea{
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 9px;
+    font-size: 1.1rem;
+} 
+
+#contact-box form{
+    width: 40%;
+}
+
+#contact-box label{
+   font-size: 1.3rem;
+   font-family: 'Bree Serif', serif;
+
+}
+
+
+footer{
+    background: black;
+    color: rgb(0, 0, 0);
+    padding: 9px 20px;
+}
+
+
+.h-primary{
+    font-family: 'Bree Serif', serif;
+    font-size: 3.8rem;
+    padding: 12px;
+}
+
+.h-secondary{
+    font-family: 'Bree Serif', serif;
+    font-size: 2.3rem;
+    padding: 12px;
+}
+
+.btn {
+    padding: 2px 20px;
+    border: 2px solid rgb(42, 128, 165);
+    background-color: rgb(42, 128, 165);
+    color: white;
+    margin: 17px;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: #333;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Transition for smooth effect 
+}
+
+
+.btn:hover {
+    background-color: rgb(16, 140, 157); /* Change background color on hover 
+    border-color: rgb(42, 128, 165); /* Optionally change border color 
+    transform: translateY(-2px); /* Slight lift effect 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow effect 
+}
+
+.center{
+    text-align: center;
+}
+#news {
+    background-color: #f9f9f9;
+    padding: 40px 0;
+}
+
+#news .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+#news .section-title {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+#noticeList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.notice-box {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 1.1em;
+    color: #333;
+}
+
+.notice-box h3 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #0056b3;
+}
+
+.notice-box p {
+    font-size: 1em;
+    color: #555;
+}
+
+
+.submit-btn {
+    background-color: #4c7daf; /* Green 
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners 
+}
+
+.submit-btn:hover {
+    background-color: #133c5e; /* Darker green on hover 
+}
+
+.submit-btn {
+    background-color: #4CAF50; /* Green 
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners 
+}
+
+.submit-btn:hover {
+    background-color: #45a049; /* Darker green on hover 
+}
+
+.video-link {
+    text-decoration: underline; 
+}
+.video-pic {
+    display: block; 
+}
+
+@media screen and (max-width: 768px) {
+    #news .row {
+        flex-direction: column;
+    }
+}
+ */
 /* CSS Reset */
 *{
     margin: 0;
@@ -53,6 +531,10 @@ html{
     z-index: 1000; /* Ensure the navbar stays on top of other elements */
     background-color: rgba(83, 79, 79, 0.241); /* Adjust the background to ensure visibility */
     padding: 10px 20px; /* Add some padding to make it look nice */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
 }
 #navbar ul {
     display: flex;
@@ -82,6 +564,9 @@ html{
     align-items: center;
     gap: 15px; 
     margin-right: 10px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
 }
 
 .auth-links a {
@@ -112,11 +597,30 @@ html{
 .profile-container {
     cursor: pointer;
     margin-left: 20px;
+    display: none; /* Hide by default */
+    display: none; /* Hidden by default */
+    align-items: center;
+    margin-left: 20px;
+    cursor: pointer;
 }
+
+.profile-container.visible {
+    display: flex;
+}
+
 .auth-links {
     display: flex;
     align-items: center;
     gap: 15px;
+}
+
+.auth-links .btn-signin {
+    transition: all 0.3s ease;
+}
+
+.auth-links .btn-signin:hover {
+    background-color: #f44336; /* Red color for sign out */
+    border-color: #f44336;
 }
 
 .profile-pic {

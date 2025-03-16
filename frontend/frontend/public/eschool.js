@@ -153,122 +153,203 @@
 
 
 
-function showLevels(subject) {
-    const levels = ['Primary', 'Intermediate', 'Advanced'];
-    const levelsContainer = document.getElementById('levelsContainer');
-    
-    // Clear previous content and display levels for the selected subject
-    levelsContainer.innerHTML = `<h3>Select Level for ${subject}</h3>`;
-    levels.forEach(level => {
-        const levelDiv = document.createElement('div');
-        levelDiv.classList.add('level-option');
-        
-        // Add tutorial, resource, and quiz buttons for each level
-        levelDiv.innerHTML = `
-            <h4>${level} Level</h4>
-            <button onclick="showTutorial('${subject}', '${level}')">Tutorial</button>
-            <button onclick="showResources('${subject}', '${level}')">Resources</button>
-            <button onclick="startQuiz('${subject}', '${level}')">Take Quiz</button>
-        `;
-        levelsContainer.appendChild(levelDiv);
+// // Import Firebase modules
+// import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+// import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+// import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+// // Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyAL0UKvBVHertMHi9Zg0zJZdHgydXXxzIM",
+//   authDomain: "login-8133e.firebaseapp.com",
+//   projectId: "login-8133e",
+//   storageBucket: "login-8133e.firebasestorage.app",
+//   messagingSenderId: "668804295177",
+//   appId: "1:668804295177:web:fb0bba99c987da360a26d8"
+// };
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// const db = getFirestore(app);
+// const auth = getAuth(app);
+
+// let userLearningLevel = "Primary";
+
+// function fetchUserLevel() {
+//   onAuthStateChanged(auth, async (user) => {
+//     if (user) {
+//       try {
+//         const docRef = doc(db, "users", user.uid);
+//         const docSnap = await getDoc(docRef);
+
+//         if (docSnap.exists()) {
+//           const userData = docSnap.data();
+//           userLearningLevel = userData.level || "Primary";
+//           autoShowLevels(userLearningLevel);
+//         } else {
+//           console.error("No such user document!");
+//         }
+//       } catch (error) {
+//         console.error("Error fetching user data:", error);
+//       }
+//     } else {
+//       window.location.href = "signin.html";
+//     }
+//   });
+// }
+
+// function autoShowLevels(level) {
+//   const subjects = ['Math', 'Science', 'Art', 'Music'];
+//   const levelsContainer = document.getElementById('levelsContainer');
+//   levelsContainer.innerHTML = `<h3>Your Learning Level: ${level}</h3>`;
+
+//   subjects.forEach(subject => {
+//     const levelDiv = document.createElement('div');
+//     levelDiv.classList.add('level-option');
+//     levelDiv.innerHTML = `
+//       <h4>${subject} - ${level}</h4>
+//       <button onclick="showTutorial('${subject}', '${level}')">Tutorial</button>
+//       <button onclick="showResources('${subject}', '${level}')">Resources</button>
+//       <button onclick="startQuiz('${subject}', '${level}')">Take Quiz</button>
+//     `;
+//     levelsContainer.appendChild(levelDiv);
+//   });
+// }
+
+// let currentTutorialIndex = 0;
+// let currentResourceIndex = 0;
+
+// function showTutorial(subject, level) {
+//   const contentContainer = document.getElementById('contentContainer');
+//   const tutorials = ["video.mp4", "video.mp4", "video.mp4"];
+
+//   contentContainer.innerHTML = `
+//     <div class="video-placeholder">
+//       <h4>${subject} - ${level} Level: Tutorial Video</h4>
+//       <p>Watch this tutorial video to understand the concepts better.</p>
+//       <video controls>
+//         <source src="${tutorials[currentTutorialIndex]}" type="video/mp4">
+//         Your browser does not support the video tag.
+//       </video>
+//       <br>
+//       <button id="nextTutorialButton" onclick="nextTutorial('${subject}', '${level}')">Next Video</button>
+//     </div>
+//   `;
+// }
+
+// function nextTutorial(subject, level) {
+//   const tutorials = ["video.mp4", "video.mp4", "video.mp4"];
+//   currentTutorialIndex = (currentTutorialIndex + 1) % tutorials.length;
+//   showTutorial(subject, level);
+// }
+
+// function showResources(subject, level) {
+//   const contentContainer = document.getElementById('contentContainer');
+//   const resources = ["a.pdf", "b.pdf", "a2.pdf"];
+
+//   contentContainer.innerHTML = `
+//     <div class="resource-list">
+//       <h4>${subject} - ${level} Level: Resources</h4>
+//       <ul>
+//         <li><a href="${resources[currentResourceIndex]}" target="_blank">Download PDF Resource ${currentResourceIndex + 1} for ${subject} - ${level}</a></li>
+//       </ul>
+//       <br>
+//       <button id="nextResourceButton" onclick="nextResource('${subject}', '${level}')">Next Resource</button>
+//     </div>
+//   `;
+// }
+
+// function nextResource(subject, level) {
+//   const resources = ["a.pdf", "b.pdf", "a2.pdf"];
+//   currentResourceIndex = (currentResourceIndex + 1) % resources.length;
+//   showResources(subject, level);
+// }
+
+// function submitQuiz() {
+//   alert('Quiz Submitted!');
+//   document.getElementById('quizSection').style.display = 'none';
+// }
+
+// function startQuiz(subject, level) {
+//   const quizPageUrl = `quiz.html?subject=${encodeURIComponent(subject)}&level=${encodeURIComponent(level)}`;
+//   window.location.href = quizPageUrl;
+// }
+
+// document.addEventListener("DOMContentLoaded", () => {
+//   fetchUserLevel();
+// });
+// Import Firebase modules
+// Import Firebase modules
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAL0UKvBVHertMHi9Zg0zJZdHgydXXxzIM",
+  authDomain: "login-8133e.firebaseapp.com",
+  projectId: "login-8133e",
+  storageBucket: "login-8133e.firebasestorage.app",
+  messagingSenderId: "668804295177",
+  appId: "1:668804295177:web:fb0bba99c987da360a26d8"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+async function fetchUserLevel() {
+  return new Promise((resolve, reject) => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            resolve(userData.level || "Primary");
+            autoShowLevels(userData.level || "Primary");
+          } else {
+            console.error("No user document found in Firestore");
+            resolve("Primary");
+            autoShowLevels("Primary"); 
+          }
+        } catch (error) {
+          console.error("Error fetching user data from Firestore:", error);
+          reject(error);
+          autoShowLevels("Primary");
+        }
+      } else {
+        console.warn("User not logged in, redirecting to signin page");
+        window.location.href = "signin.html";
+      }
     });
+  });
 }
 
-function showTutorial(subject, level) {
-    const contentContainer = document.getElementById('contentContainer');
-    const tutorials = [
-        "video.mp4", // Example relative path to video file
-        "video.mp4",
-        "video.mp4"
-    ];
+function autoShowLevels(userLearningLevel) {
+  const subjects = ['Math', 'Science', 'Art', 'Music'];
+  const levelsContainer = document.getElementById('levelsContainer');
+  if (!levelsContainer) return;
 
-    contentContainer.innerHTML = `
-        <div class="video-placeholder">
-            <h4>${subject} - ${level} Level: Tutorial Video</h4>
-            <p>Watch this tutorial video to understand the concepts better.</p>
-            <video controls>
-                <source src="${tutorials[currentTutorialIndex]}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <br>
-            <button id="nextTutorialButton" onclick="nextTutorial('${subject}', '${level}')">Next Video</button>
-        </div>
+  levelsContainer.innerHTML = `<h3>Your Learning Level: ${userLearningLevel}</h3>`;
+
+  subjects.forEach(subject => {
+    const levelDiv = document.createElement('div');
+    levelDiv.classList.add('level-option');
+    levelDiv.innerHTML = `
+      <h4>${subject} - ${userLearningLevel}</h4>
+      <button onclick="showTutorial('${subject}', '${userLearningLevel}')">Tutorial</button>
+      <button onclick="showResources('${subject}', '${userLearningLevel}')">Resources</button>
+      <button onclick="startQuiz('${subject}', '${userLearningLevel}')">Take Quiz</button>
     `;
-}
-let currentTutorialIndex = 0;
-
-function nextTutorial(subject, level) {
-    const tutorials = [
-        "video.mp4",
-        "video.mp4",
-        "video.mp4"
-    ];
-    
-    currentTutorialIndex = (currentTutorialIndex + 1) % tutorials.length; // Loop back to the first video if at the end
-    showTutorial(subject, level);
+    levelsContainer.appendChild(levelDiv);
+  });
 }
 
-function showResources(subject, level) {
-    const contentContainer = document.getElementById('contentContainer');
-    
-    // Array of PDF resources (replace these paths with actual PDF URLs)
-    const resources = [
-        "a.pdf",
-        "b.pdf",
-        "a2.pdf"
-    ];
-
-    // Display the resources list
-    contentContainer.innerHTML = `
-        <div class="resource-list">
-            <h4>${subject} - ${level} Level: Resources</h4>
-            <ul>
-                <li><a href="${resources[currentResourceIndex]}" target="_blank">Download PDF Resource ${currentResourceIndex + 1} for ${subject} - ${level}</a></li>
-            </ul>
-            <br>
-            <button id="nextResourceButton" onclick="nextResource('${subject}', '${level}')">Next Resource</button>
-        </div>
-    `;
-}
-
-// Function to go to the next resource
-function nextResource(subject, level) {
-    const resources = [
-        "a.pdf",
-        "b.pdf",
-        "a2.pdf"
-    ];
-    currentResourceIndex = (currentResourceIndex + 1) % resources.length; // Loop back to the first resource if at the end
-    showResources(subject, level); // Reload the resources section with the next resource
-}
-
-function showResources(subject, level) {
-    const contentContainer = document.getElementById('contentContainer');
-    contentContainer.innerHTML = `
-        <div class="resource-list">
-            <h4>${subject} - ${level} Level: Resources</h4>
-            <ul>
-                <li><a href="a.pdf" target="_blank">Download PDF 1 for ${subject} - ${level}</a></li>
-                <li><a href="b.pdf" target="_blank">Download PDF 2 for ${subject} - ${level}</a></li>
-                <li><a href="a2.pdf" target="_blank">Download PDF 3 for ${subject} - ${level}</a></li>
-            </ul>
-        </div>
-    `;
-}
-
-function submitQuiz() {
-    alert('Quiz Submitted!');
-    document.getElementById('quizSection').style.display = 'none';
-}
-
-function startQuiz(subject, level) {
-    // Redirect to the quiz page with query parameters
-    const quizPageUrl = `quiz.html?subject=${encodeURIComponent(subject)}&level=${encodeURIComponent(level)}`;
-    window.location.href = quizPageUrl;
-}
-
-
-document.getElementById('mathTile').addEventListener('click', () => showLevels('Math'));
-document.getElementById('scienceTile').addEventListener('click', () => showLevels('Science'));
-document.getElementById('artTile').addEventListener('click', () => showLevels('Art'));
-document.getElementById('musicTile').addEventListener('click', () => showLevels('Music'));
+document.addEventListener("DOMContentLoaded", async () => {
+  fetchUserLevel();
+});

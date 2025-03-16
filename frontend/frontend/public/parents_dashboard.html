@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -20,7 +20,7 @@
         <a href="#" id="logoutLink">Logout</a>
     </div>
     <main>
-        <!-- Connect with Special Child Section -->
+        <!-- 
         <div class="container" id="signIn">
             <h1 class="form-title">Connect With Your Child</h1>
             <form method="post" action="">
@@ -44,5 +44,116 @@
         
     </main>
     
+</body>
+</html>
+ -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script type="module" src="firebaseauth.js"></script>
+    <script type="module" src="parents.js"></script>
+    <script>
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "my_upload_preset");
+
+            try {
+                const response = await fetch("https://api.cloudinary.com/v1_1/dra4ykviv/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+                const data = await response.json();
+                return data.secure_url;
+            } catch (error) {
+                console.error("Cloudinary Upload Error:", error);
+                return null;
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Parent Dashboard</h1>
+        <button id="menuButton" class="menu-button">☰ Menu</button>
+    </header>
+    <div id="sidebar" class="sidebar">
+        <a href="#" id="closeButton" class="close-btn">&times;</a>
+        <a href="index.html" id="homeLink">Home</a>
+        <a href="#" id="logoutLink">Logout</a>
+    </div>
+    <main>
+        <div class="container" id="signIn">
+            <h1 class="form-title">Connect With Your Child</h1>
+            <form method="post" action="">
+                <div id="signInMessage" class="messageDiv" style="display:none;"></div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Email" required>
+                    <label for="email">Email</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <label for="password">Password</label>
+                </div>
+                <button class="btn" id="submitSignIn">Connect</button>
+            </form>
+        </div>
+        
+        <!-- Profile Update Section -->
+        <div class="container" id="profileUpdate">
+            <h1 class="form-title">Update Profile</h1>
+            <form id="profileForm">
+                <label for="profileImage">Profile Image:</label>
+                <input type="file" id="profileImage" accept="image/*"><br><br>
+                
+                <label for="about">About:</label>
+                <textarea id="about" placeholder="Write about yourself..."></textarea><br><br>
+                
+                <button type="submit">Update Profile</button>
+            </form>
+            
+            <!-- Display Profile Picture and About -->
+            <div id="profileDisplay">
+                <h2>Profile Preview</h2>
+                <img id="profilePic" src="default-profile.png" alt="Profile Picture" width="150" height="150" style="border-radius: 50%; object-fit: cover;">
+                <p id="aboutText">No about info added.</p>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        document.getElementById("profileForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const profileImageInput = document.getElementById("profileImage");
+            const aboutInput = document.getElementById("about");
+            const profilePic = document.getElementById("profilePic");
+            const aboutText = document.getElementById("aboutText");
+            let imageUrl = "";
+            
+            if (profileImageInput.files.length > 0) {
+                imageUrl = await uploadToCloudinary(profileImageInput.files[0]);
+            }
+            
+            const profileData = {
+                about: aboutInput.value,
+                profileImage: imageUrl
+            };
+            
+            // Update UI dynamically
+            if (imageUrl) {
+                profilePic.src = imageUrl;
+            }
+            aboutText.textContent = aboutInput.value || "No about info added.";
+            
+            console.log("Profile Updated:", profileData);
+            alert("Profile updated successfully!");
+        });
+    </script>
 </body>
 </html>

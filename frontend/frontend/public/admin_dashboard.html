@@ -11,6 +11,10 @@
 <body>
     <header>
         <h1>Admin Dashboard</h1>
+        <div class="profile-header">
+            <img id="headerProfilePic" src="/default-profile.png" alt="Profile" class="header-profile-pic">
+            <span id="headerProfileName"></span>
+        </div>
         <button id="menuButton" class="menu-button">☰ Menu</button>
     </header>
     <div id="sidebar" class="sidebar">
@@ -19,9 +23,21 @@
         <a href="upload_videos.html" id="uploadVideosLink">Upload Videos</a>
         <a href="all_videos.html" id="allVideosLink">All Videos</a>
         <a href="edit_profile.html" id="editProfileLink">Edit Profile</a>
+        <a href="#" id="profileSection">Profile</a>
         <a href="#" id="logoutLink">Logout</a>
     </div>
     <main>
+        <div id="profileContainer" style="display: none;">
+            <h2>My Profile</h2>
+            <div class="profile-info">
+                <img id="profilePic" src="/default-profile.png" alt="Profile Picture" class="profile-pic">
+                <form id="profileForm">
+                    <input type="file" id="profileImage" accept="image/*">
+                    <textarea id="about" placeholder="Write about yourself..."></textarea>
+                    <button type="submit">Update Profile</button>
+                </form>
+            </div>
+        </div>
         <h2>Welcome to the Admin Dashboard</h2>
         <p>Manage your content and videos here.</p>
         <button id="detailsButton">Details</button>

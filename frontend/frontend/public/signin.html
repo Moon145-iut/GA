@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,87 +9,234 @@
     <script type="module" src="firebaseauth.js"></script>
 </head>
 <body>
-    <div class="container" id="signup" style="display:none;">
-      <h1 class="form-title">Register</h1>
-      <form method="post" action="">
-        <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
-        <div class="input-group">
-           <i class="fas fa-user"></i>
-           <input type="text"  id="fName" placeholder="First Name" required>
-           <label for="fname">First Name</label>
+    <div class="container" id="signup">
+        <h1 class="form-title">Register</h1>
+        <form id="signUpForm">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="fName" placeholder="First Name" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="lName" placeholder="Last Name" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="rEmail" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <select id="rRole" required>
+                    
+                    <option value="Admin">Admin</option>
+                    <option value="Parents">Parents</option>
+                    <option value="Educator">Educator</option>
+                    <option value="Special child">Special child</option>
+                </select>
+            </div>
+            <div id="levelSelectContainer" class="input-group" style="display:none;">
+                <i class="fas fa-graduation-cap"></i>
+                <select id="rLevel">
+                    <option value="Primary">Primary</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="rPassword" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn" id="submitSignUp">Sign Up</button>
+            <p id="signUpMessage" style="display:none; color: red; text-align: center;"></p>
+        </form>
+        <div class="links">
+            <p>Already have an account?</p>
+            <button id="signInButton">Sign In</button>
         </div>
-        <div class="input-group">
-            <i class="fas fa-user"></i>
-            <input type="text"  id="lName" placeholder="Last Name" required>
-            <label for="lName">Last Name</label>
-        </div>
-        <div class="input-group">
-            <i class="fas fa-envelope"></i>
-            <input type="email"  id="rEmail" placeholder="Email" required>
-            <label for="rEmail">Email</label>
-        </div>
-        <div class="input-group">
-          <i class="fas fa-userrole"></i>
-          <select id="rRole" required>
-            <option>Special child</option>
-            <option>Admin</option>
-            <option>Parents</option>
-            <option>Educator</option>
-          </select>
-          <label for="rRole">Role</label>
-        </div>
-        <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" id="rPassword"  placeholder="Password" required>
-            <label for="rPassword">Password</label>
-        </div>
-       <button class="btn" id="submitSignUp" >Sign Up</button>
-      </form>
-      <p class="or">
-        ----------or--------
-      </p>
-      <div class="icons">
-        <i class="fab fa-google"></i>
-        <i class="fab fa-facebook"></i>
-      </div>
-      <div class="links">
-        <p>Already Have Account ?</p>
-        <button id="signInButton">Sign In</button>
-      </div>
     </div>
 
-  <div class="container" id="signIn">
+    <div class="container" id="signIn" style="display:none;">
         <h1 class="form-title">Sign In</h1>
-        <form method="post" action="">
-          <div id="signInMessage" class="messageDiv" style="display:none;"></div>
-
-          <div class="input-group">
-              <i class="fas fa-envelope"></i>
-              <input type="email"  id="email" placeholder="Email" required>
-              <label for="email">Email</label>
-          </div>
-          <div class="input-group">
-              <i class="fas fa-lock"></i>
-            <input type="password" id="password"  placeholder="Password" required>
-              <label for="password">Password</label>
-          </div>
-          <p class="recover">
-            <a href="#">Recover Password</a>
-          </p>
-         <button  class="btn"  id="submitSignIn">Sign In</button>
+        <form id="signInForm">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn" id="submitSignIn">Sign In</button>
+            <p id="signInMessage" style="display:none; color: red; text-align: center;"></p>
         </form>
-        <p class="or">
-          ----------or--------
-        </p>
-        <div class="icons">
-          <i class="fab fa-google"></i>
-          <i class="fab fa-facebook"></i>
-        </div>
         <div class="links">
-          <p>Don't have account yet?</p>
-          <button id="signUpButton">Sign Up</button>
+            <p>Don't have an account?</p>
+            <button id="goToSignUp">Sign Up</button>
         </div>
-      </div>
-      <script src="script.js"></script>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const roleSelect = document.getElementById("rRole");
+            const levelSelectContainer = document.getElementById("levelSelectContainer");
+            const signInButton = document.getElementById("signInButton");
+            const signUpContainer = document.getElementById("signup");
+            const signInContainer = document.getElementById("signIn");
+            const goToSignUp = document.getElementById("goToSignUp");
+
+            // Toggle between sign up and sign in forms
+            signInButton.addEventListener("click", () => {
+                signUpContainer.style.display = "none";
+                signInContainer.style.display = "block";
+            });
+
+            goToSignUp.addEventListener("click", () => {
+                signInContainer.style.display = "none";
+                signUpContainer.style.display = "block";
+            });
+
+            // Show/hide level select based on role
+            roleSelect.addEventListener("change", function() {
+                if (this.value === "Special child") {
+                    levelSelectContainer.style.display = "block";
+                    document.getElementById("rLevel").setAttribute("required", "required");
+                } else {
+                    levelSelectContainer.style.display = "none";
+                    document.getElementById("rLevel").removeAttribute("required");
+                }
+            });
+
+            // Handle sign up form submission
+            document.getElementById("signUpForm").addEventListener("submit", async function(event) {
+                event.preventDefault();
+                // Form data will be handled by firebaseauth.js
+                // After successful signup, firebaseauth.js will redirect to index.html
+            });
+
+            // Handle sign in form submission
+            document.getElementById("signInForm").addEventListener("submit", async function(event) {
+                event.preventDefault();
+                // Form data will be handled by firebaseauth.js
+                // After successful signin, firebaseauth.js will redirect to index.html
+            });
+        });
+    </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register & Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="signin.css">
+    
+
+</head>
+<body>
+    <div class="container" id="signup">
+        <h1 class="form-title">Register</h1>
+        <form id="signUpForm">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="fName" placeholder="First Name" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="lName" placeholder="Last Name" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="rEmail" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <select id="rRole" required>
+                    <option value="Admin">Admin</option>
+                    <option value="Parents">Parents</option>
+                    <option value="Educator">Educator</option>
+                    <option value="Special child">Special child</option>
+                </select>
+            </div>
+            <div id="levelSelectContainer" class="input-group" style="display:none;">
+                <i class="fas fa-graduation-cap"></i>
+                <select id="rLevel">
+                    <option value="Primary">Primary</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="rPassword" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn" id="submitSignUp">Sign Up</button>
+            <p id="signUpMessage" style="display:none; color: rgb(163, 161, 161); text-align: center;"></p>
+        </form>
+        <div class="links">
+            <p>Already have an account?</p>
+            <button id="signInButton">Sign In</button>
+        </div>
+    </div>
+
+    <div class="container" id="signIn" style="display:none;">
+        <h1 class="form-title">Sign In</h1>
+        <form id="signInForm">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn" id="submitSignIn">Sign In</button>
+            <p id="signInMessage" style="display:none; color: red; text-align: center;"></p>
+        </form>
+        <div class="links">
+            <p>Don't have an account?</p>
+            <button id="goToSignUp">Sign Up</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const roleSelect = document.getElementById("rRole");
+            const levelSelectContainer = document.getElementById("levelSelectContainer");
+            const signInButton = document.getElementById("signInButton");
+            const signUpContainer = document.getElementById("signup");
+            const signInContainer = document.getElementById("signIn");
+            const goToSignUp = document.getElementById("goToSignUp");
+
+            // Toggle between sign up and sign in forms
+            signInButton.addEventListener("click", () => {
+                signUpContainer.style.display = "none";
+                signInContainer.style.display = "block";
+            });
+
+            goToSignUp.addEventListener("click", () => {
+                signInContainer.style.display = "none";
+                signUpContainer.style.display = "block";
+            });
+
+            // Show/hide level select based on role
+            roleSelect.addEventListener("change", function() {
+                if (this.value === "Special child") {
+                    levelSelectContainer.style.display = "block";
+                    document.getElementById("rLevel").setAttribute("required", "required");
+                } else {
+                    levelSelectContainer.style.display = "none";
+                    document.getElementById("rLevel").removeAttribute("required");
+                }
+            });
+        });
+    </script>
+    
+    
+    <!-- Firebase scripts -->
+    <script type="module" src="firebaseauth.js"></script>
+    <script type="module" src="signup_handler.js"></script>
+
 </body>
 </html>

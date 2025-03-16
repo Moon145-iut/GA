@@ -1,4 +1,174 @@
+// const { useState } = React;
+// const { render } = ReactDOM;
+
+// // All 80 questions of the RAADS-R Test
+// const RAADSRQuestions = [
+//     "I have difficulty understanding social rules.",
+//     "I find it hard to make eye contact.",
+//     "I prefer to be alone rather than with others.",
+//     "I find it difficult to start a conversation.",
+//     "I often feel overwhelmed in social situations.",
+//     "I have trouble recognizing when others are joking.",
+//     "I find it hard to understand how people feel.",
+//     "I dislike changes in routine.",
+//     "I enjoy doing things on my own.",
+//     "I feel uncomfortable when others touch me.",
+//     // Additional 20 MCQs
+//     "What is the capital of France?",
+//     "Which planet is known as the Red Planet?",
+//     "What is the square root of 64?",
+//     "Who developed the theory of relativity?",
+//     "Which gas do plants absorb from the atmosphere?",
+//     "What is the largest organ in the human body?",
+//     "What is the chemical symbol for water?",
+//     "Who wrote 'Hamlet'?",
+//     "What is the speed of light in vacuum?",
+//     "Which element has the atomic number 1?",
+//     "Which ocean is the largest?",
+//     "What is the hardest natural substance on Earth?",
+//     "What is the main ingredient in traditional Japanese miso soup?",
+//     "Which is the longest river in the world?",
+//     "How many continents are there?",
+//     "Which is the smallest planet in our solar system?",
+//     "Which gas is most abundant in Earth's atmosphere?",
+//     "What is the capital of Japan?",
+//     "Which instrument is used to measure earthquakes?",
+//     "Which language has the most native speakers in the world?"
+// ];
+
+// const MCQOptions = {
+//     80: ["Paris", "London", "Berlin", "Rome"],
+//     81: ["Venus", "Mars", "Jupiter", "Saturn"],
+//     82: ["6", "8", "10", "12"],
+//     83: ["Newton", "Einstein", "Galileo", "Tesla"],
+//     84: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+//     85: ["Heart", "Liver", "Skin", "Brain"],
+//     86: ["H2O", "CO2", "O2", "N2"],
+//     87: ["Shakespeare", "Hemingway", "Dickens", "Austen"],
+//     88: ["300,000 km/s", "150,000 km/s", "400,000 km/s", "500,000 km/s"],
+//     89: ["Oxygen", "Hydrogen", "Helium", "Carbon"],
+//     90: ["Atlantic", "Indian", "Arctic", "Pacific"],
+//     91: ["Gold", "Iron", "Diamond", "Platinum"],
+//     92: ["Rice", "Soybeans", "Tofu", "Fish"],
+//     93: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+//     94: ["5", "6", "7", "8"],
+//     95: ["Mercury", "Venus", "Mars", "Pluto"],
+//     96: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+//     97: ["Beijing", "Tokyo", "Seoul", "Bangkok"],
+//     98: ["Seismometer", "Barometer", "Thermometer", "Hygrometer"],
+//     99: ["English", "Spanish", "Mandarin", "Hindi"]
+// };
+
+
+// const RAADSRApp = () => {
+//     const [username, setUsername] = useState('');
+//     const [answers, setAnswers] = useState(Array(80).fill(null)); // Initialize with null
+//     const [currentPage, setCurrentPage] = useState(1); // To keep track of the current page
+//     const totalPages = Math.ceil(RAADSRQuestions.length / 40); // Dynamically set pages
+//     const [showScore, setShowScore] = useState(false);
+//     const [testStarted, setTestStarted] = useState(false);
+
+//     const handleUsernameChange = (e) => {
+//         setUsername(e.target.value);
+//     };
+
+//     const startTest = () => {
+//         if (username.trim() === "") {
+//             alert("Please enter your username.");
+//             return;
+//         }
+//         setTestStarted(true);
+//     };
+
+//     const handleAnswerChange = (index, e) => {
+//         const newAnswers = [...answers];
+//         newAnswers[index] = e.target.value;
+//         setAnswers(newAnswers);
+//     };
+
+//     const handleNextPage = () => {
+//         if (currentPage < totalPages) {
+//             setCurrentPage(currentPage + 1);
+//         } else {
+//             setShowScore(true);
+//             // Add timeout to show score before redirecting
+//             setTimeout(() => {
+//                 window.location.href = "index.html";
+//             }, 3000); // 3 seconds delay to show the score
+//         }
+//     };
+
+//     const calculateScore = () => {
+//         return answers.reduce((total, answer) => total + (answer === 'yes' ? 2 : answer === 'sometimes' ? 1 : 0), 0);
+//     };
+
+//     return (
+//         <div className="container">
+//             <h1>RAADS-R Autism Test</h1>
+//             {!testStarted ? (
+//                 <div>
+//                     <input
+//                         type="text"
+//                         value={username}
+//                         onChange={handleUsernameChange}
+//                         placeholder="Enter your username"
+//                     />
+//                     <button onClick={startTest}>Start Test</button>
+//                 </div>
+//             ) : (
+//                 <div>
+//                     {RAADSRQuestions.slice((currentPage - 1) * 40, currentPage * 40).map((question, questionIndex) => (
+//                         <div className="question-container" key={questionIndex}>
+//                             <p>{(currentPage - 1) * 40 + questionIndex + 1}. {question}</p>
+//                             <label>
+//                                 <input
+//                                     type="radio"
+//                                     value="yes"
+//                                     checked={answers[questionIndex] === 'yes'}
+//                                     onChange={(e) => handleAnswerChange(questionIndex, e)}
+//                                 />
+//                                 Yes
+//                             </label>
+//                             <label>
+//                                 <input
+//                                     type="radio"
+//                                     value="sometimes"
+//                                     checked={answers[questionIndex] === 'sometimes'}
+//                                     onChange={(e) => handleAnswerChange(questionIndex, e)}
+//                                 />
+//                                 Sometimes
+//                             </label>
+//                             <label>
+//                                 <input
+//                                     type="radio"
+//                                     value="no"
+//                                     checked={answers[questionIndex] === 'no'}
+//                                     onChange={(e) => handleAnswerChange(questionIndex, e)}
+//                                 />
+//                                 No
+//                             </label>
+//                         </div>
+//                     ))}
+//                     <button className="next" onClick={handleNextPage}>
+//                         {currentPage === totalPages ? 'Submit Test' : 'Next'}
+//                     </button>
+//                 </div>
+//             )}
+//             {showScore && (
+//                 <div className="score">
+//                     <h2>Your Score: {calculateScore()}</h2>
+//                 </div>
+//             )}
+//         </div>
+//     );
+// };
+
+// render(
+//     React.createElement(RAADSRApp),
+//     document.getElementById("root")
+// );
 const { useState } = React;
+const { render } = ReactDOM;
 
 // All 80 questions of the RAADS-R Test
 const RAADSRQuestions = [
@@ -12,95 +182,61 @@ const RAADSRQuestions = [
     "I dislike changes in routine.",
     "I enjoy doing things on my own.",
     "I feel uncomfortable when others touch me.",
-    "I have a very good memory for things that interest me.",
-    "I find it difficult to understand sarcasm.",
-    "I often misinterpret what people say.",
-    "I am very sensitive to sounds, tastes, smells, or colors.",
-    "I feel anxious when I am in a large group of people.",
-    "I find it hard to pick up on nonverbal cues.",
-    "I have trouble making friends.",
-    "I often feel lonely.",
-    "I prefer to watch rather than participate in group activities.",
-    "I have trouble understanding other people's perspectives.",
-    "I tend to speak my mind without thinking about how it affects others.",
-    "I find it hard to empathize with others.",
-    "I get very focused on specific interests or hobbies.",
-    "I find it hard to express my feelings.",
-    "I dislike certain textures or fabrics.",
-    "I have difficulty organizing my tasks.",
-    "I often daydream or lose focus.",
-    "I have strong reactions to changes in my environment.",
-    "I find it hard to connect with people emotionally.",
-    "I struggle to follow conversations in noisy environments.",
-    "I often feel overwhelmed by sensory experiences.",
-    "I avoid eye contact.",
-    "I have specific routines that I follow.",
-    "I often prefer to be alone.",
-    "I have a hard time telling stories or jokes.",
-    "I find it difficult to join in conversations.",
-    "I dislike unexpected events.",
-    "I prefer to plan things in detail.",
-    "I have trouble following the flow of conversations.",
-    "I feel drained after social interactions.",
-    "I often prefer activities that involve rules and structure.",
-    "I have a strong sense of justice.",
-    "I feel more comfortable with things than people.",
-    "I get attached to objects or toys.",
-    "I find it hard to relate to characters in movies or books.",
-    "I have trouble understanding complex ideas.",
-    "I often repeat myself when talking.",
-    "I find it difficult to make decisions.",
-    "I dislike crowded places.",
-    "I often get anxious about upcoming events.",
-    "I find it hard to deal with changes in plans.",
-    "I often misread social situations.",
-    "I have difficulty understanding jokes or humor.",
-    "I prefer clear instructions.",
-    "I have a strong interest in specific topics.",
-    "I often need to be reminded to stay on task.",
-    "I find it hard to adjust to new environments.",
-    "I often struggle to make small talk.",
-    "I get stressed when I am interrupted.",
-    "I have a tendency to speak in a monotone voice.",
-    "I find it hard to enjoy social gatherings.",
-    "I often feel like I don't fit in.",
-    "I find it hard to understand the emotions of others.",
-    "I dislike surprises.",
-    "I often get lost in my thoughts.",
-    "I have difficulty understanding the intentions of others.",
-    "I tend to take things literally.",
-    "I often avoid talking about my feelings.",
-    "I find it hard to deal with criticism.",
-    "I have trouble initiating conversations.",
-    "I feel overwhelmed by my emotions.",
-    "I find it hard to express empathy.",
-    "I prefer structured activities.",
-    "I have difficulty understanding the concept of time.",
-    "I often struggle to stay focused in conversations.",
-    "I find it hard to understand social norms.",
-    "I have a tendency to analyze situations too deeply.",
-    "I often feel anxious in new situations.",
-    "I find it hard to maintain friendships.",
-    "I have a strong reaction to loud noises.",
-    "I often feel misunderstood."
+    // Additional 20 MCQs
+    "What is the capital of France?",
+    "Which planet is known as the Red Planet?",
+    "What is the square root of 64?",
+    "Who developed the theory of relativity?",
+    "Which gas do plants absorb from the atmosphere?",
+    "What is the largest organ in the human body?",
+    "What is the chemical symbol for water?",
+    "Who wrote 'Hamlet'?",
+    "What is the speed of light in vacuum?",
+    "Which element has the atomic number 1?",
+    "Which ocean is the largest?",
+    "What is the hardest natural substance on Earth?",
+    "What is the main ingredient in traditional Japanese miso soup?",
+    "Which is the longest river in the world?",
+    "How many continents are there?",
+    "Which is the smallest planet in our solar system?",
+    "Which gas is most abundant in Earth's atmosphere?",
+    "What is the capital of Japan?",
+    "Which instrument is used to measure earthquakes?",
+    "Which language has the most native speakers in the world?"
 ];
 
-// Scoring interpretation based on the RAADS-R guidelines
-const scoringInterpretation = [
-    { range: "0-14", interpretation: "No autism traits." },
-    { range: "15-24", interpretation: "Mild autism traits." },
-    { range: "25-34", interpretation: "Moderate autism traits." },
-    { range: "35-39", interpretation: "Severe autism traits." },
-    { range: "40-240", interpretation: "Very severe autism traits." },
-];
+const MCQOptions = {
+    80: ["Paris", "London", "Berlin", "Rome"],
+    81: ["Venus", "Mars", "Jupiter", "Saturn"],
+    82: ["6", "8", "10", "12"],
+    83: ["Newton", "Einstein", "Galileo", "Tesla"],
+    84: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+    85: ["Heart", "Liver", "Skin", "Brain"],
+    86: ["H2O", "CO2", "O2", "N2"],
+    87: ["Shakespeare", "Hemingway", "Dickens", "Austen"],
+    88: ["300,000 km/s", "150,000 km/s", "400,000 km/s", "500,000 km/s"],
+    89: ["Oxygen", "Hydrogen", "Helium", "Carbon"],
+    90: ["Atlantic", "Indian", "Arctic", "Pacific"],
+    91: ["Gold", "Iron", "Diamond", "Platinum"],
+    92: ["Rice", "Soybeans", "Tofu", "Fish"],
+    93: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+    94: ["5", "6", "7", "8"],
+    95: ["Mercury", "Venus", "Mars", "Pluto"],
+    96: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
+    97: ["Beijing", "Tokyo", "Seoul", "Bangkok"],
+    98: ["Seismometer", "Barometer", "Thermometer", "Hygrometer"],
+    99: ["English", "Spanish", "Mandarin", "Hindi"]
+};
 
 const RAADSRApp = () => {
     const [username, setUsername] = useState('');
     const [answers, setAnswers] = useState(Array(80).fill(null)); // Initialize with null
     const [currentPage, setCurrentPage] = useState(1); // To keep track of the current page
-    const totalPages = 2; // Since we have 80 questions in total
-    const [showScore, setShowScore] = useState(false); // To control score display
-    const [testStarted, setTestStarted] = useState(false); // To track if the test has started
+    const totalPages = Math.ceil(RAADSRQuestions.length / 40); // Dynamically set pages
+    const [showScore, setShowScore] = useState(false);
+    const [testStarted, setTestStarted] = useState(false);
+    const [score, setScore] = useState(0); // To store the test score
+    const [scoreMessage, setScoreMessage] = useState(""); // To store the interpretation message
 
     const handleUsernameChange = (e) => {
         setUsername(e.target.value);
@@ -111,7 +247,7 @@ const RAADSRApp = () => {
             alert("Please enter your username.");
             return;
         }
-        setTestStarted(true); // Start the test
+        setTestStarted(true);
     };
 
     const handleAnswerChange = (index, e) => {
@@ -124,31 +260,57 @@ const RAADSRApp = () => {
         if (currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
         } else {
-            const score = calculateScore();
-            setShowScore(true); // Show score when last page is submitted
+            const testScore = calculateScore();
+            setScore(testScore);  // Store the calculated score
+            setScoreMessage(getScoreMessage(testScore));  // Get the interpretation message
+            setShowScore(true);
+
+            // Render the score interpretation and chart after 5 seconds
+            setTimeout(() => {
+                const ctx = document.getElementById('scoreChart').getContext('2d');
+                const scoreChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Score'],
+                        datasets: [{
+                            label: 'RAADS-R Score',
+                            data: [score],
+                            backgroundColor: ['rgba(54, 162, 235, 0.2)'],
+                            borderColor: ['rgba(54, 162, 235, 1)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }, 500);
+
+            // Redirect after 5 seconds
+            setTimeout(() => {
+                window.location.href = 'index.html'; // Redirect to index.html
+            }, 5000);
         }
     };
 
     const calculateScore = () => {
-        let score = 0;
-        answers.forEach(answer => {
-            if (answer === 'yes') {
-                score += 2; // Yes answer
-            } else if (answer === 'sometimes') {
-                score += 1; // Sometimes answer
-            }
-        });
-        return score; // Return the total score
+        return answers.reduce((total, answer) => total + (answer === 'yes' ? 2 : answer === 'sometimes' ? 1 : 0), 0);
     };
 
-    const getScoreInterpretation = (score) => {
-        for (const interpretation of scoringInterpretation) {
-            const [min, max] = interpretation.range.split('-').map(Number);
-            if (score >= min && (max === undefined || score <= max)) {
-                return interpretation.interpretation;
-            }
-        }
-        return "Score out of range.";
+    const getScoreMessage = (score) => {
+        if (score < 25) return "You are not autistic.";
+        if (score >= 25 && score < 50) return "Some autistic traits, but likely not autistic.";
+        if (score >= 50 && score < 65) return "Some autistic traits, but likely not autistic (yet some autistic people score as low as 44).";
+        if (score >= 65 && score < 90) return "The minimum score at which autism is considered.";
+        if (score >= 90 && score < 130) return "Stronger indications of autism, although non-autistics may score as high.";
+        if (score >= 130 && score < 160) return "The mean score of autistic people; strong evidence for autism.";
+        if (score >= 160 && score < 227) return "Very strong evidence for autism.";
+        if (score >= 227 && score < 240) return "The maximum score autistic people acquired in Ritvo’s seminal paper on the RAADS-R.";
+        return "The maximum possible RAADS-R score.";
     };
 
     return (
@@ -156,24 +318,6 @@ const RAADSRApp = () => {
             <h1>RAADS-R Autism Test</h1>
             {!testStarted ? (
                 <div>
-                    <h2>About the RAADS-R Test</h2>
-                    <p>
-                        The RAADS-R (Ritvo Autism Asperger Diagnostic Scale-Revised) is a screening tool used to help identify autism spectrum disorder (ASD) traits in adults. 
-                        It consists of 80 questions designed to assess a range of characteristics and behaviors commonly associated with ASD.
-                    </p>
-                    <h3>Who Should Take This Test?</h3>
-                    <p>
-                        This test is intended for individuals who suspect they may have autism or those who want to understand their traits better.
-                    </p>
-                    <h3>Why Take the RAADS-R Test?</h3>
-                    <p>
-                        The RAADS-R test helps individuals gain insights into their behaviors and characteristics that may relate to autism.
-                    </p>
-                    <h3>How to Take the Test:</h3>
-                    <ol>
-                        <li>Answer all 80 questions honestly.</li>
-                        <li>Your score will be displayed at the end.</li>
-                    </ol>
                     <input
                         type="text"
                         value={username}
@@ -184,93 +328,70 @@ const RAADSRApp = () => {
                 </div>
             ) : (
                 <div>
-                    {currentPage === 1 && (
-                        <div>
-                            <h3>Questions 1-40:</h3>
-                            {RAADSRQuestions.slice(0, 40).map((question, questionIndex) => (
-                                <div className="question-container" key={questionIndex}>
-                                    <p>{questionIndex + 1}. {question}</p>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value="yes"
-                                            checked={answers[questionIndex] === 'yes'}
-                                            onChange={(e) => handleAnswerChange(questionIndex, e)}
-                                        />
-                                        Yes
-                                    </label>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value="sometimes"
-                                            checked={answers[questionIndex] === 'sometimes'}
-                                            onChange={(e) => handleAnswerChange(questionIndex, e)}
-                                        />
-                                        Sometimes
-                                    </label>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value="no"
-                                            checked={answers[questionIndex] === 'no'}
-                                            onChange={(e) => handleAnswerChange(questionIndex, e)}
-                                        />
-                                        No
-                                    </label>
-                                </div>
-                            ))}
+                    {RAADSRQuestions.slice((currentPage - 1) * 40, currentPage * 40).map((question, questionIndex) => (
+                        <div className="question-container" key={questionIndex}>
+                            <p>{(currentPage - 1) * 40 + questionIndex + 1}. {question}</p>
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="yes"
+                                    checked={answers[questionIndex] === 'yes'}
+                                    onChange={(e) => handleAnswerChange(questionIndex, e)}
+                                />
+                                Yes
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="sometimes"
+                                    checked={answers[questionIndex] === 'sometimes'}
+                                    onChange={(e) => handleAnswerChange(questionIndex, e)}
+                                />
+                                Sometimes
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="no"
+                                    checked={answers[questionIndex] === 'no'}
+                                    onChange={(e) => handleAnswerChange(questionIndex, e)}
+                                />
+                                No
+                            </label>
                         </div>
-                    )}
-                    {currentPage === 2 && (
-                        <div>
-                            <h3>Questions 41-80:</h3>
-                            {RAADSRQuestions.slice(40, 80).map((question, questionIndex) => (
-                                <div className="question-container" key={questionIndex}>
-                                    <p>{questionIndex + 41}. {question}</p>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value="yes"
-                                            checked={answers[questionIndex + 40] === 'yes'}
-                                            onChange={(e) => handleAnswerChange(questionIndex + 40, e)}
-                                        />
-                                        Yes
-                                    </label>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value="sometimes"
-                                            checked={answers[questionIndex + 40] === 'sometimes'}
-                                            onChange={(e) => handleAnswerChange(questionIndex + 40, e)}
-                                        />
-                                        Sometimes
-                                    </label>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value="no"
-                                            checked={answers[questionIndex + 40] === 'no'}
-                                            onChange={(e) => handleAnswerChange(questionIndex + 40, e)}
-                                        />
-                                        No
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    ))}
                     <button className="next" onClick={handleNextPage}>
                         {currentPage === totalPages ? 'Submit Test' : 'Next'}
                     </button>
                 </div>
             )}
             {showScore && (
+                
                 <div className="score">
-                    <h2>Your Score: {calculateScore()}</h2>
-                    <h3>{getScoreInterpretation(calculateScore())}</h3>
+                    <h2>Your Score: {score}</h2>
+                    <canvas id="scoreChart" width="400" height="400"></canvas>
+                    <div id="scoreInterpretation" style={{ display: 'block' }}>
+                    <div id="scoreInterpretation" style={{ display: 'none' }}>
+                        <h3>RAADS-R Score Interpretation</h3>
+                        <p><strong>25</strong> - You are not autistic.</p>
+                        <p><strong>50</strong> - Some autistic traits, but likely not autistic.</p>
+                        <p><strong>65</strong> - The minimum score at which autism is considered.</p>
+                        <p><strong>90</strong> - Stronger indications of autism.</p>
+                        <p><strong>130</strong> - The mean score of autistic people; strong evidence for autism.</p>
+                        <p><strong>160</strong> - Very strong evidence for autism.</p>
+                        <p><strong>227</strong> - The maximum score autistic people acquired in Ritvo’s seminal paper on the RAADS-R.</p>
+                        <p><strong>240</strong> - The maximum possible RAADS-R score.</p>
+                    </div>
+                        <h3>RAADS-R Score Interpretation</h3>
+                        <p>{scoreMessage}</p>
+                    </div>
                 </div>
             )}
         </div>
     );
 };
 
-ReactDOM.render(<RAADSRApp />, document.getElementById("root"));
+render(
+    React.createElement(RAADSRApp),
+    document.getElementById("root")
+);

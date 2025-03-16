@@ -1,4 +1,5 @@
-const { useState } = React;
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 
 // Default activities data
 const activitiesData = [

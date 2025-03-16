@@ -286,6 +286,9 @@ function renderShorts(shorts) {
 
 // Function to play a video
 function playVideo(video) {
+  // Add to watch history when playing
+  addToHistory(video);
+  
   // Generate recommended videos (subset of all videos excluding current)
   const recommendedVideos = window.allVideos
     .filter(v => v.id !== video.id)
@@ -321,7 +324,7 @@ function playVideo(video) {
                 ${video.views} • ${video.uploadedAgo}
               </div>
               <div class="video-meta-actions">
-                <button class="video-action-button">
+                <button class="video-action-button like-button ${isVideoLiked(video) ? 'liked' : ''}">
                   <i class="material-icons">thumb_up</i>
                   <span>Like</span>
                 </button>
@@ -454,6 +457,13 @@ function playVideo(video) {
       }
     });
   });
+
+  // Add like button functionality
+  const likeButton = videoPlayerModal.querySelector('.like-button');
+  likeButton.addEventListener('click', () => {
+    const isLiked = handleVideoLike(video);
+    likeButton.classList.toggle('liked', isLiked);
+  });
 }
 
 // Function to toggle sidebar
@@ -514,7 +524,32 @@ function filterContent(category) {
 function setupSearchFunctionality() {
   const searchInput = document.querySelector('.search-bar input');
   const searchButton = document.querySelector('.search-button');
+  const voiceSearchButton = document.querySelector('.voice-search-button');
 
+  // Create suggestions container
+  const suggestionsContainer = document.createElement('div');
+  suggestionsContainer.className = 'search-suggestions';
+  searchInput.parentElement.appendChild(suggestionsContainer);
+
+  // Handle input changes for suggestions
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim().toLowerCase();
+    if (query.length > 0) {
+      const suggestions = generateSuggestions(query);
+      showSuggestions(suggestions, query);
+    } else {
+      hideSuggestions();
+    }
+  });
+
+  // Hide suggestions on click outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-bar')) {
+      hideSuggestions();
+    }
+  });
+
+  // Existing search button click handler
   searchButton.addEventListener('click', () => {
     const query = searchInput.value.trim().toLowerCase();
     if (query) {
@@ -522,6 +557,7 @@ function setupSearchFunctionality() {
     }
   });
 
+  // Existing search input enter key handler
   searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       const query = searchInput.value.trim().toLowerCase();
@@ -530,6 +566,104 @@ function setupSearchFunctionality() {
       }
     }
   });
+
+  // Add voice search functionality
+  voiceSearchButton.addEventListener('click', async () => {
+    try {
+      // Request microphone permission first
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Check if browser supports speech recognition
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        // Show listening indicator
+        showToast('Listening...');
+        voiceSearchButton.classList.add('listening');
+        voiceSearchButton.querySelector('i').textContent = 'mic';
+
+        recognition.start();
+
+        recognition.onresult = (event) => {
+          const voiceText = event.results[0][0].transcript;
+          searchInput.value = voiceText;
+          performSearch(voiceText.toLowerCase());
+          voiceSearchButton.classList.remove('listening');
+          voiceSearchButton.querySelector('i').textContent = 'mic';
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          showToast('Voice search failed. Please try again.');
+          voiceSearchButton.classList.remove('listening');
+          voiceSearchButton.querySelector('i').textContent = 'mic';
+        };
+
+        recognition.onend = () => {
+          voiceSearchButton.classList.remove('listening');
+          voiceSearchButton.querySelector('i').textContent = 'mic';
+        };
+      } else {
+        showToast('Voice search is not supported in your browser');
+      }
+    } catch (err) {
+      console.error('Microphone permission error:', err);
+      showToast('Please allow microphone access to use voice search');
+    }
+  });
+
+  function generateSuggestions(query) {
+    const allTerms = window.allVideos.reduce((terms, video) => {
+      terms.push(video.title, video.channelName);
+      if (video.description) terms.push(video.description);
+      return terms;
+    }, []);
+
+    return [...new Set(allTerms)]
+      .filter(term => term.toLowerCase().includes(query))
+      .slice(0, 6);
+  }
+
+  function showSuggestions(suggestions, query) {
+    if (suggestions.length === 0) {
+      hideSuggestions();
+      return;
+    }
+
+    suggestionsContainer.innerHTML = suggestions
+      .map(suggestion => `
+        <div class="suggestion-item">
+          <i class="material-icons">search</i>
+          <span>${highlightMatch(suggestion, query)}</span>
+        </div>
+      `)
+      .join('');
+
+    suggestionsContainer.style.display = 'block';
+
+    // Add click handlers for suggestions
+    suggestionsContainer.querySelectorAll('.suggestion-item').forEach((item, index) => {
+      item.addEventListener('click', () => {
+        searchInput.value = suggestions[index];
+        performSearch(suggestions[index].toLowerCase());
+        hideSuggestions();
+      });
+    });
+  }
+
+  function hideSuggestions() {
+    suggestionsContainer.style.display = 'none';
+  }
+
+  function highlightMatch(text, query) {
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<strong>$1</strong>');
+  }
 }
 
 // Perform search
@@ -547,8 +681,7 @@ function performSearch(query) {
 function setupSidebarNavigation() {
   // Home button (already active)
   document.querySelector('.sidebar-item.active').addEventListener('click', () => {
-    renderVideos(window.allVideos);
-    updateActiveState(document.querySelector('.sidebar-item.active'));
+    window.location.href = 'yt.html';  // Redirect to yt.html
   });
 
   // Add event listeners to sidebar items
@@ -570,8 +703,8 @@ function setupSidebarNavigation() {
             case 'Playlists':
               showPlaylistsContent();
               break;
-            case 'Watch later':
-              showWatchLaterContent();
+            case 'Live Stream':
+              showLiveContent();
               break;
             case 'Liked videos':
               showLikedVideosContent();
@@ -749,7 +882,50 @@ function showSubscriptionsContent() {
 
 // Show history content
 function showHistoryContent() {
-  showEmptyState('Keep track of what you watch', 'Watch history isn\'t viewable when signed out', 'Browse videos');
+  const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
+  
+  if (history.length === 0) {
+    showEmptyState('Keep track of what you watch', 'Watch history isn\'t viewable when signed out', 'Browse videos');
+    return;
+  }
+  
+  const mainContent = document.querySelector('.main-content');
+  mainContent.innerHTML = `
+    <div class="custom-content">
+      <h2>Watch History</h2>
+      <div class="video-grid">
+        ${history.map(video => `
+          <div class="video-card" data-id="${video.id}">
+            <div class="video-thumbnail">
+              <img src="${video.thumbnail}" alt="${video.title}">
+              <div class="video-duration">${video.duration}</div>
+            </div>
+            <div class="video-info">
+              <div class="channel-icon">
+                <img src="${video.channelIcon}" alt="${video.channelName}">
+              </div>
+              <div class="video-details">
+                <h3 class="video-title">${video.title}</h3>
+                <p class="channel-name">${video.channelName}</p>
+                <p class="video-meta">${video.views} • ${video.uploadedAgo}</p>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  // Add event listeners to video cards
+  document.querySelectorAll('.video-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const videoId = card.dataset.id;
+      const video = history.find(v => v.id === videoId);
+      if (video) {
+        playVideo(video);
+      }
+    });
+  });
 }
 
 // Show playlists content
@@ -758,13 +934,131 @@ function showPlaylistsContent() {
 }
 
 // Show watch later content
-function showWatchLaterContent() {
-  showEmptyState('No saved videos', 'Videos that you save will show up here', 'Browse videos');
+function showLiveContent() {
+  if (!isUserLoggedIn()) {
+    showEmptyState(
+      'Sign in to access live streams', 
+      'Create or watch live streams by signing in', 
+      'Sign In'
+    );
+    return;
+  }
+
+  const mainContent = document.querySelector('.main-content');
+  const activeStreams = getActiveStreams();
+  
+  mainContent.innerHTML = `
+    <div class="custom-content">
+      <div class="live-header">
+        <h2>Live Streaming</h2>
+        <button class="start-stream-btn browse-button">
+          <i class="material-icons">videocam</i>
+          Go Live
+        </button>
+      </div>
+
+      ${activeStreams.length === 0 ? `
+        <div class="no-streams-message">
+          <i class="material-icons">live_tv</i>
+          <h3>No active streams</h3>
+          <p>Start streaming or wait for other creators to go live</p>
+        </div>
+      ` : `
+        <div class="active-streams">
+          <h3>Live Now</h3>
+          <div class="video-grid">
+            ${activeStreams.map(stream => `
+              <div class="video-card live-stream-card" data-stream-id="${stream.id}">
+                <div class="video-thumbnail">
+                  <img src="${stream.thumbnail}" alt="${stream.title}">
+                  <div class="live-badge">LIVE</div>
+                  <div class="viewer-count">
+                    <i class="material-icons">visibility</i>
+                    <span>${stream.viewerCount}</span>
+                  </div>
+                </div>
+                <div class="video-info">
+                  <div class="channel-icon">
+                    <img src="${stream.broadcasterIcon}" alt="${stream.broadcasterName}">
+                  </div>
+                  <div class="video-details">
+                    <h3 class="video-title">${stream.title}</h3>
+                    <p class="channel-name">${stream.broadcasterName}</p>
+                    <p class="stream-meta">${stream.category} • Started ${stream.startedAgo}</p>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `}
+    </div>
+  `;
+
+  // Add event listeners
+  const startStreamBtn = mainContent.querySelector('.start-stream-btn');
+  if (startStreamBtn) {
+    startStreamBtn.addEventListener('click', showStreamSetup);
+  }
+
+  // Add click handlers for stream cards
+  mainContent.querySelectorAll('.live-stream-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const streamId = card.dataset.streamId;
+      const stream = activeStreams.find(s => s.id === streamId);
+      if (stream) {
+        watchStream(stream);
+      }
+    });
+  });
 }
 
 // Show liked videos content
 function showLikedVideosContent() {
-  showEmptyState('No liked videos', 'Videos that you like will show up here', 'Browse videos');
+  const likedVideos = JSON.parse(localStorage.getItem('likedVideos') || '[]');
+  
+  if (likedVideos.length === 0) {
+    showEmptyState('No liked videos', 'Videos that you like will show up here', 'Browse videos');
+    return;
+  }
+  
+  const mainContent = document.querySelector('.main-content');
+  mainContent.innerHTML = `
+    <div class="custom-content">
+      <h2>Liked Videos</h2>
+      <div class="video-grid">
+        ${likedVideos.map(video => `
+          <div class="video-card" data-id="${video.id}">
+            <div class="video-thumbnail">
+              <img src="${video.thumbnail}" alt="${video.title}">
+              <div class="video-duration">${video.duration}</div>
+            </div>
+            <div class="video-info">
+              <div class="channel-icon">
+                <img src="${video.channelIcon}" alt="${video.channelName}">
+              </div>
+              <div class="video-details">
+                <h3 class="video-title">${video.title}</h3>
+                <p class="channel-name">${video.channelName}</p>
+                <p class="video-meta">${video.views} • ${video.uploadedAgo}</p>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  // Add event listeners to video cards
+  document.querySelectorAll('.video-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const videoId = card.dataset.id;
+      const video = likedVideos.find(v => v.id === videoId);
+      if (video) {
+        playVideo(video);
+      }
+    });
+  });
 }
 
 // Show channel content
@@ -1365,9 +1659,21 @@ function showUserChannelPage() {
 function showUserDashboard() {
   console.log('showUserDashboard function called');
   const mainContent = document.querySelector('.main-content');
-  console.log('Main content element found:', mainContent);
   
-  // Get total view count for user stats
+  // Get user profile from localStorage
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  const username = userProfile.username || 'User';
+  const displayName = userProfile.displayName || 'Your Channel';
+  // Use the stored profile picture or fallback to default
+  const profilePic = userProfile.photoURL || '/default-profile.png';
+  
+  // Update header profile picture
+  const headerProfileImg = document.querySelector('.user-profile img');
+  if (headerProfileImg) {
+    headerProfileImg.src = profilePic;
+  }
+
+  // Calculate stats
   const totalViews = window.uploadedVideos.reduce((sum, video) => {
     const viewsText = video.views.replace(/K views|M views|views/g, '').trim();
     let viewCount = parseFloat(viewsText);
@@ -1375,34 +1681,25 @@ function showUserDashboard() {
     if (viewsText.includes('M')) viewCount *= 1000000;
     return sum + (isNaN(viewCount) ? 0 : viewCount);
   }, 0);
-  
-  // Format total views
-  const formattedViews = totalViews >= 1000000 
-    ? (totalViews / 1000000).toFixed(1) + 'M' 
-    : totalViews >= 1000 
-      ? (totalViews / 1000).toFixed(1) + 'K' 
-      : totalViews;
-  
-  // Create user dashboard UI
+
   mainContent.innerHTML = `
     <div class="dashboard-container">
       <div class="dashboard-header">
         <div class="user-banner">
           <div class="user-info">
-            <img src="https://picsum.photos/100/100?random=100" class="user-avatar">
+            <img src="${profilePic}" class="user-avatar" alt="${displayName}'s profile">
             <div class="user-details">
-              <h1>Your Channel</h1>
-              <p>@yourchannel</p>
+              <h1>${displayName}</h1>
+              <p>@${username}</p>
             </div>
           </div>
-          
           <div class="user-stats">
             <div class="stat">
               <span class="stat-value">${window.uploadedVideos.length}</span>
               <span class="stat-label">Videos</span>
             </div>
             <div class="stat">
-              <span class="stat-value">${formattedViews}</span>
+              <span class="stat-value">${totalViews}</span>
               <span class="stat-label">Views</span>
             </div>
             <div class="stat">
@@ -1596,3 +1893,410 @@ function showToast(message) {
     }, 300);
   }, 3000);
 }
+
+// Update profile picture whenever it changes
+function updateProfilePicture(newPhotoURL) {
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  userProfile.photoURL = newPhotoURL;
+  localStorage.setItem('userProfile', JSON.stringify(userProfile));
+
+  // Update all profile pictures in the UI
+  document.querySelectorAll('.user-avatar, .user-profile img').forEach(img => {
+    img.src = newPhotoURL;
+  });
+}
+
+// Add these CSS styles at the end of your existing CSS file
+const styles = document.createElement('style');
+styles.textContent = `
+  .search-bar {
+    position: relative;
+  }
+  
+  .search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+  }
+  
+  .suggestion-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .suggestion-item:hover {
+    background-color: #f8f8f8;
+  }
+  
+  .suggestion-item i {
+    margin-right: 12px;
+    color: #666;
+    font-size: 20px;
+  }
+  
+  .suggestion-item strong {
+    color: #000;
+    font-weight: 500;
+  }
+`;
+document.head.appendChild(styles);
+
+// Add this function to handle video likes
+function handleVideoLike(video) {
+  const likedVideos = JSON.parse(localStorage.getItem('likedVideos') || '[]');
+  const isLiked = likedVideos.some(v => v.id === video.id);
+  
+  if (isLiked) {
+    // Unlike video
+    const filteredVideos = likedVideos.filter(v => v.id !== video.id);
+    localStorage.setItem('likedVideos', JSON.stringify(filteredVideos));
+    showToast('Removed from liked videos');
+    return false;
+  } else {
+    // Like video
+    likedVideos.unshift(video);
+    localStorage.setItem('likedVideos', JSON.stringify(likedVideos));
+    showToast('Added to liked videos');
+    return true;
+  }
+}
+
+// Helper function to check if a video is liked
+function isVideoLiked(video) {
+  const likedVideos = JSON.parse(localStorage.getItem('likedVideos') || '[]');
+  return likedVideos.some(v => v.id === video.id);
+}
+
+// Add this CSS for the like button
+const additionalStyles = document.createElement('style');
+additionalStyles.textContent = `
+  .video-action-button.liked {
+    color: #065fd4;
+  }
+  .video-action-button.liked i {
+    color: #065fd4;
+  }
+`;
+document.head.appendChild(additionalStyles);
+
+// Add these new functions for handling watch history
+function addToHistory(video) {
+  const history = JSON.parse(localStorage.getItem('watchHistory') || '[]');
+  // Remove if already exists (to move it to top)
+  const filteredHistory = history.filter(v => v.id !== video.id);
+  // Add to beginning of array
+  filteredHistory.unshift(video);
+  // Store in localStorage
+  localStorage.setItem('watchHistory', JSON.stringify(filteredHistory));
+}
+
+// Add these new functions for live streaming
+function isUserLoggedIn() {
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  return Boolean(userProfile.username);
+}
+
+function getActiveStreams() {
+  return JSON.parse(localStorage.getItem('activeStreams') || '[]');
+}
+
+function addActiveStream(stream) {
+  const streams = getActiveStreams();
+  streams.unshift(stream);
+  localStorage.setItem('activeStreams', JSON.stringify(streams));
+}
+
+function removeActiveStream(streamId) {
+  const streams = getActiveStreams();
+  const filteredStreams = streams.filter(s => s.id !== streamId);
+  localStorage.setItem('activeStreams', JSON.stringify(filteredStreams));
+}
+
+// Update the showLiveContent function
+function showLiveContent() {
+  if (!isUserLoggedIn()) {
+    showEmptyState(
+      'Sign in to access live streams', 
+      'Create or watch live streams by signing in', 
+      'Sign In'
+    );
+    return;
+  }
+
+  const mainContent = document.querySelector('.main-content');
+  const activeStreams = getActiveStreams();
+  
+  mainContent.innerHTML = `
+    <div class="custom-content">
+      <div class="live-header">
+        <h2>Live Streaming</h2>
+        <button class="start-stream-btn browse-button">
+          <i class="material-icons">videocam</i>
+          Go Live
+        </button>
+      </div>
+
+      ${activeStreams.length === 0 ? `
+        <div class="no-streams-message">
+          <i class="material-icons">live_tv</i>
+          <h3>No active streams</h3>
+          <p>Start streaming or wait for other creators to go live</p>
+        </div>
+      ` : `
+        <div class="active-streams">
+          <h3>Live Now</h3>
+          <div class="video-grid">
+            ${activeStreams.map(stream => `
+              <div class="video-card live-stream-card" data-stream-id="${stream.id}">
+                <div class="video-thumbnail">
+                  <img src="${stream.thumbnail}" alt="${stream.title}">
+                  <div class="live-badge">LIVE</div>
+                  <div class="viewer-count">
+                    <i class="material-icons">visibility</i>
+                    <span>${stream.viewerCount}</span>
+                  </div>
+                </div>
+                <div class="video-info">
+                  <div class="channel-icon">
+                    <img src="${stream.broadcasterIcon}" alt="${stream.broadcasterName}">
+                  </div>
+                  <div class="video-details">
+                    <h3 class="video-title">${stream.title}</h3>
+                    <p class="channel-name">${stream.broadcasterName}</p>
+                    <p class="stream-meta">${stream.category} • Started ${stream.startedAgo}</p>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `}
+    </div>
+  `;
+
+  // Add event listeners
+  const startStreamBtn = mainContent.querySelector('.start-stream-btn');
+  if (startStreamBtn) {
+    startStreamBtn.addEventListener('click', showStreamSetup);
+  }
+
+  // Add click handlers for stream cards
+  mainContent.querySelectorAll('.live-stream-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const streamId = card.dataset.streamId;
+      const stream = activeStreams.find(s => s.id === streamId);
+      if (stream) {
+        watchStream(stream);
+      }
+    });
+  });
+}
+
+// Function to show stream setup modal
+function showStreamSetup() {
+  const modal = document.createElement('div');
+  modal.className = 'modal stream-setup-modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Start Streaming</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="streamSetupForm">
+          <div class="form-group">
+            <label for="streamTitle">Stream Title*</label>
+            <input type="text" id="streamTitle" required>
+          </div>
+          <div class="form-group">
+            <label for="streamDescription">Description</label>
+            <textarea id="streamDescription"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="streamCategory">Category</label>
+            <select id="streamCategory">
+              <option value="Gaming">Gaming</option>
+              <option value="IRL">IRL</option>
+              <option value="Music">Music</option>
+              <option value="Education">Education</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="streamThumbnail">Thumbnail</label>
+            <input type="file" id="streamThumbnail" accept="image/*">
+            <div class="preview-container">
+              <img id="thumbnailPreview">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="cancel-btn">Cancel</button>
+            <button type="submit" class="start-btn">Start Streaming</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Handle form submission
+  const form = modal.querySelector('#streamSetupForm');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    startStream(form);
+    modal.remove();
+  });
+
+  // Handle modal close
+  const closeBtn = modal.querySelector('.close');
+  const cancelBtn = modal.querySelector('.cancel-btn');
+  [closeBtn, cancelBtn].forEach(btn => {
+    btn.addEventListener('click', () => modal.remove());
+  });
+}
+
+// Function to start streaming
+function startStream(form) {
+  const streamData = {
+    id: 'stream_' + Date.now(),
+    title: form.streamTitle.value,
+    description: form.streamDescription.value,
+    category: form.streamCategory.value,
+    thumbnail: form.streamThumbnail.files[0] ? 
+      URL.createObjectURL(form.streamThumbnail.files[0]) : 
+      'https://picsum.photos/320/180?random=' + Date.now(),
+    broadcasterName: JSON.parse(localStorage.getItem('userProfile') || '{}').displayName || 'User',
+    broadcasterIcon: JSON.parse(localStorage.getItem('userProfile') || '{}').photoURL || '/default-profile.png',
+    startedAgo: 'just now',
+    viewerCount: 0
+  };
+
+  addActiveStream(streamData);
+  showLiveContent();
+  showToast('Stream started successfully!');
+}
+
+// Function to watch a stream
+function watchStream(stream) {
+  const streamPlayer = document.createElement('div');
+  streamPlayer.className = 'video-player-modal';
+  streamPlayer.innerHTML = `
+    <div class="video-player-header">
+      <button class="back-btn"><i class="material-icons">arrow_back</i></button>
+      <div class="stream-info">
+        <span class="live-badge">LIVE</span>
+        <span class="viewer-count">
+          <i class="material-icons">visibility</i>
+          ${stream.viewerCount}
+        </span>
+      </div>
+      <button class="close-player"><i class="material-icons">close</i></button>
+    </div>
+    <div class="video-player-container">
+      <div class="stream-player">
+        <div class="stream-placeholder">
+          <i class="material-icons">live_tv</i>
+          <h3>Live Stream</h3>
+          <p>You are watching ${stream.broadcasterName}'s stream</p>
+        </div>
+      </div>
+      <div class="stream-chat">
+        <div class="chat-messages"></div>
+        <div class="chat-input">
+          <input type="text" placeholder="Send a message...">
+          <button><i class="material-icons">send</i></button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(streamPlayer);
+
+  // Handle close/back buttons
+  streamPlayer.querySelector('.close-player').addEventListener('click', () => {
+    streamPlayer.remove();
+  });
+  streamPlayer.querySelector('.back-btn').addEventListener('click', () => {
+    streamPlayer.remove();
+  });
+}
+
+// Add these CSS styles
+const liveStyles = document.createElement('style');
+liveStyles.textContent = `
+  .live-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .live-badge {
+    background: #ff0000;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .viewer-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    font-size: 14px;
+  }
+
+  .stream-setup-modal .modal-content {
+    max-width: 600px;
+  }
+
+  .stream-player {
+    aspect-ratio: 16/9;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stream-chat {
+    height: 400px;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .chat-input {
+    display: flex;
+    padding: 16px;
+    gap: 8px;
+    border-top: 1px solid #ddd;
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+`;
+document.head.appendChild(liveStyles);
+
+// ...existing code...

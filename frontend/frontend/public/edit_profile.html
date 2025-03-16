@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -77,4 +77,117 @@
         <button type="submit">Update Profile</button>
     </form>
 </body>
-</html>
+</html> -->
+// Cloudinary Upload Function
+async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "my_upload_preset");
+
+    try {
+        const response = await fetch("https://api.cloudinary.com/v1_1/dra4ykviv/upload", {
+            method: "POST",
+            body: formData,
+        });
+        const data = await response.json();
+        return data.secure_url; // Return Cloudinary URL
+    } catch (error) {
+        console.error("Cloudinary Upload Error:", error);
+        return null;
+    }
+}
+
+// Modify Profile Upload to Use Cloudinary
+document.addEventListener("DOMContentLoaded", () => {
+    const profileForm = document.getElementById("profileForm");
+    const imageInput = document.getElementById("profileImage");
+    const nameInput = document.getElementById("name");
+    const infoInput = document.getElementById("info");
+
+    profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const userId = "USER_ID"; // Replace with dynamic user ID logic
+
+        let imageUrl = null;
+        if (imageInput.files.length > 0) {
+            imageUrl = await uploadToCloudinary(imageInput.files[0]);
+        }
+
+        const updatedData = {
+            name: nameInput.value,
+            info: infoInput.value,
+            profileImage: imageUrl || null, // Only update image if uploaded
+        };
+
+        // Store data in Firestore
+        const userDocRef = doc(db, "users", userId);
+        try {
+            await updateDoc(userDocRef, updatedData);
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("Failed to update profile. Please try again.");
+        }
+    });
+});
+
+// Implement Post Upload Using Cloudinary
+document.addEventListener("DOMContentLoaded", () => {
+    const postForm = document.getElementById("postForm");
+    const postImageInput = document.getElementById("postImage");
+    const captionInput = document.getElementById("caption");
+    const postsContainer = document.getElementById("postsContainer");
+
+    postForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const userId = "USER_ID"; // Replace with dynamic user ID logic
+
+        if (postImageInput.files.length === 0) {
+            alert("Please select an image to upload.");
+            return;
+        }
+
+        const imageUrl = await uploadToCloudinary(postImageInput.files[0]);
+        if (!imageUrl) {
+            alert("Upload failed. Please try again.");
+            return;
+        }
+
+        const postData = {
+            userId,
+            caption: captionInput.value,
+            imageUrl,
+            timestamp: new Date().toISOString(),
+        };
+
+        // Store post in Firestore
+        try {
+            await addDoc(collection(db, "posts"), postData);
+            alert("Post uploaded successfully!");
+            loadPosts(); // Reload feed after posting
+        } catch (error) {
+            console.error("Error uploading post:", error);
+            alert("Failed to upload post. Please try again.");
+        }
+    });
+
+    // Load Posts Feed from Firestore
+    async function loadPosts() {
+        postsContainer.innerHTML = "";
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        querySnapshot.forEach((doc) => {
+            const post = doc.data();
+            const postElement = document.createElement("div");
+            postElement.className = "post";
+            postElement.innerHTML = `
+                <img src="${post.imageUrl}" alt="Post Image" class="post-image" />
+                <p>${post.caption}</p>
+                <span>${new Date(post.timestamp).toLocaleString()}</span>
+            `;
+            postsContainer.appendChild(postElement);
+        });
+    }
+
+    // Load posts when the page loads
+    loadPosts();
+});

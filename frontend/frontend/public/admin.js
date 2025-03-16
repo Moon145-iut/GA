@@ -1,9 +1,16 @@
-import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import { getAuth, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const auth = getAuth();
     const db = getFirestore();
+
+    // Add Profile elements
+    const profileSection = document.getElementById("profileSection");
+    const profileContainer = document.getElementById("profileContainer");
+    const profileForm = document.getElementById("profileForm");
+    const headerProfilePic = document.getElementById("headerProfilePic");
+    const profilePic = document.getElementById("profilePic");
 
     // Sidebar elements
     const sidebar = document.getElementById("sidebar");
@@ -134,4 +141,128 @@ document.addEventListener("DOMContentLoaded", async () => {
         newNotice.textContent = `${title}: ${details}`;
         noticesSection.appendChild(newNotice);
     }
+
+    // Load Profile Data
+    async function loadProfileData() {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            
+            // Update header profile
+            if (headerProfilePic) {
+                headerProfilePic.src = userProfile.photoURL || '/default-profile.png';
+            }
+            if (headerProfileName) {
+                headerProfileName.textContent = userProfile.displayName || 'User';
+            }
+            
+            // Update profile form
+            if (profilePic) {
+                profilePic.src = userProfile.photoURL || '/default-profile.png';
+            }
+            
+            const aboutInput = document.getElementById('about');
+            if (aboutInput) {
+                aboutInput.value = userProfile.about || '';
+            }
+        } catch (error) {
+            console.error("Error loading profile:", error);
+        }
+    }
+
+    // Show/Hide Profile Section
+    profileSection.addEventListener('click', () => {
+        profileContainer.style.display = 'block';
+        userDetails.style.display = 'none';
+        postNoticeForm.style.display = 'none';
+    });
+
+    // Handle Profile Update
+    profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Please log in first');
+            return;
+        }
+
+        try {
+            const profileImage = document.getElementById('profileImage').files[0];
+            const about = document.getElementById('about').value;
+
+            let photoURL = user.photoURL;
+            if (profileImage) {
+                const formData = new FormData();
+                formData.append('file', profileImage);
+                formData.append('upload_preset', 'my_upload_preset');
+
+                const response = await fetch('https://api.cloudinary.com/v1_1/dra4ykviv/image/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+                const data = await response.json();
+                photoURL = data.secure_url;
+                
+                // Store in localStorage for persistence
+                localStorage.setItem('userProfilePic', photoURL);
+            }
+
+            // Update Firestore
+            const userRef = doc(db, 'users', user.uid);
+            await updateDoc(userRef, {
+                photoURL,
+                about
+            });
+
+            // Update UI across all elements
+            headerProfilePic.src = photoURL;
+            profilePic.src = photoURL;
+            document.getElementById("profilePage").src = photoURL;
+
+            // Update auth profile
+            await updateProfile(user, {
+                photoURL: photoURL
+            });
+
+            alert('Profile updated successfully!');
+            
+            // Reload profile data to ensure everything is in sync
+            await loadProfileData();
+            
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('Failed to update profile. Please try again.');
+        }
+    });
+
+    // Cloudinary Upload Function
+    async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'my_upload_preset');
+
+        try {
+            const response = await fetch('https://api.cloudinary.com/v1_1/dra4ykviv/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+            
+            const data = await response.json();
+            return data.secure_url;
+        } catch (error) {
+            console.error('Cloudinary Upload Error:', error);
+            throw error;
+        }
+    }
+
+    // Load profile data when page loads
+    loadProfileData();
 });

@@ -1,3 +1,85 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-School for Autistic Children</title>
+    <link rel="stylesheet" href="eschool.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome to the E-School</h1>
+            <p>An engaging learning platform for autistic children and their families.</p>
+        </header>
+        
+        <section class="subjects">
+            <h2>Subjects</h2>
+            <div class="tiles">
+                <div class="tile" id="mathTile">
+                    <h3>Math</h3>
+                    <p>Learn shapes, numbers, and simple patterns.</p>
+                </div>
+                <div class="tile" id="scienceTile">
+                    <h3>Science</h3>
+                    <p>Explore experiments and nature.</p>
+                </div>
+                <div class="tile" id="artTile">
+                    <h3>Art</h3>
+                    <p>Creative expression through drawing and painting.</p>
+                </div>
+                <div class="tile" id="musicTile">
+                    <a href="music.html" style="text-decoration: none; color: inherit;">
+                        <h3>Words</h3>
+                        <p>Enjoy fun sounds and rhythms.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="levels" id="levelsContainer">
+           
+        </section>
+
+        <section class="content" id="contentContainer">
+            
+        </section>
+
+        <section class="quiz-section" id="quizSection" style="display: none;">
+            <h3 id="quizTitle"></h3>
+            <div id="quizContent"></div>
+            <button onclick="submitQuiz()">Submit Quiz</button>
+        </section>
+
+        <section class="activities">
+            <h2>Fun Activities</h2>
+            <p>Pick an activity and start learning!</p>
+            <button id="activityBtn">Start Activity</button>
+        </section>
+
+        <section class="parents">
+            <h2>For Parents</h2>
+            <div class="parent-content">
+                <p>We offer resources and support for parents of autistic children to help them navigate the learning process.</p>
+                <ul>
+                    <li><a href="#" onclick="alert('Learning tips loaded')">Learning Tips</a></li>
+                    <li><a href="#" onclick="alert('Support Groups information loaded')">Support Groups</a></li>
+                    <li><a href="#" onclick="alert('Contact details loaded')">Speak with a Specialist</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <h2>Contact Us</h2>
+            <p>Email: info@eschool.com | Phone: 123-456-7890</p>
+        </footer>
+
+    </div>
+
+    <script src="eschool.js"></script>
+</body>
+</html> -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,11 +120,12 @@
         </section>
 
         <section class="levels" id="levelsContainer">
-            <!-- Level options will be displayed here -->
+            <h2>Your Learning Level</h2>
+            <!-- Level options dynamically generated here -->
         </section>
 
         <section class="content" id="contentContainer">
-            <!-- Tutorial and resource content will be displayed here -->
+            <!-- Tutorial and resource content dynamically loaded here -->
         </section>
 
         <section class="quiz-section" id="quizSection" style="display: none;">
@@ -73,9 +156,8 @@
             <h2>Contact Us</h2>
             <p>Email: info@eschool.com | Phone: 123-456-7890</p>
         </footer>
-
     </div>
 
-    <script src="eschool.js"></script>
+    <script type="module" src="eschool.js"></script>
 </body>
 </html>

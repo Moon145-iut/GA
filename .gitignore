@@ -46,8 +46,6 @@ build/Release
 
 # Dependency directories
 node_modules/
-/.pnp
-.pnp.js
 
 # Optional npm cache directory
 .npm
@@ -66,26 +64,6 @@ node_modules/
 
 # dotenv environment variables file
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # dataconnect generated files
 .dataconnect
-
-# testing
-/coverage/
-
-# production
-/build/
-/dist/
-
-# misc
-.DS_Store
-
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo

@@ -1,69 +1,100 @@
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+// import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+// import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-// Firebase configuration and initialization
-const auth = getAuth();
-const db = getFirestore();
+// document.addEventListener('DOMContentLoaded', () => {
+//     const profilePic = document.getElementById('profilePic');
+//     const auth = getAuth();
+//     const db = getFirestore();
+    
+//     // Add click event to profile picture for redirection
+//     if (profilePic) {
+//         profilePic.addEventListener('click', async () => {
+//             // First try to get role from localStorage for better performance
+//             const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+//             let userRole = userData.role || profilePic.dataset.role;
+            
+//             // If role not found in localStorage, try to get from Firebase (as fallback)
+//             if (!userRole && auth.currentUser) {
+//                 try {
+//                     const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+//                     if (userDoc.exists()) {
+//                         userRole = userDoc.data().role;
+//                     }
+//                 } catch (error) {
+//                     console.error("Error fetching user role:", error);
+//                 }
+//             }
+            
+//             if (userRole) {
+//                 // Normalize role name to match the dashboard file naming convention
+//                 const normalizedRole = userRole.toLowerCase().replace(' ', '_');
+                
+//                 // Determine dashboard URL based on role
+//                 let dashboardURL;
+                
+//                 // Handle special child role
+//                 if (userRole.toLowerCase() === "special child" || normalizedRole === "special_child") {
+//                     dashboardURL = "special_child_dashboard.html";
+//                 } else {
+//                     dashboardURL = `${normalizedRole}_dashboard.html`;
+//                 }
+                
+//                 console.log(`Redirecting to ${dashboardURL} for role: ${userRole}`);
+//                 window.location.href = dashboardURL;
+//             } else {
+//                 console.error("User role not found");
+//                 alert("Could not determine your role. Please try logging in again.");
+//             }
+//         });
+//     }
+// });
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-// Function to fetch the role and redirect based on it
-const redirectToRoleDashboard = async () => {
-  const user = auth.currentUser;
-
-  if (user) {
-    try {
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        const userRole = userData.role;
-
-        if (userRole) {
-          // Redirect to the respective dashboard based on role
-          const roleDashboard = `${userRole.toLowerCase()}_dashboard.html`;
-          console.log(`Redirecting to: ${roleDashboard}`);
-          window.location.href = roleDashboard;
-        } else {
-          console.error("Role not found in Firestore!");
-          alert("Your role is not defined. Please contact support.");
-        }
-      } else {
-        console.error("User document does not exist!");
-        alert("No user information found. Please sign up again.");
-      }
-    } catch (error) {
-      console.error("Error fetching user role from Firestore:", error);
-      alert("An error occurred while fetching your data. Please try again.");
+document.addEventListener('DOMContentLoaded', () => {
+    const profilePic = document.getElementById('profilePic');
+    const auth = getAuth();
+    const db = getFirestore();
+    
+    // Add click event to profile picture for redirection
+    if (profilePic) {
+        profilePic.addEventListener('click', async () => {
+            // First try to get role from localStorage for better performance
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            let userRole = userData.role || profilePic.dataset.role;
+            
+            // If role not found in localStorage, try to get from Firebase (as fallback)
+            if (!userRole && auth.currentUser) {
+                try {
+                    const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+                    if (userDoc.exists()) {
+                        userRole = userDoc.data().role;
+                    }
+                } catch (error) {
+                    console.error("Error fetching user role:", error);
+                }
+            }
+            
+            if (userRole) {
+                // Normalize role name to match the dashboard file naming convention
+                const normalizedRole = userRole.toLowerCase().replace(' ', '_');
+                
+                // Determine dashboard URL based on role
+                let dashboardURL;
+                
+                // Handle special child role
+                if (userRole.toLowerCase() === "special child" || normalizedRole === "special_child") {
+                    dashboardURL = "special_child_dashboard.html";
+                } else {
+                    dashboardURL = `${normalizedRole}_dashboard.html`;
+                }
+                
+                console.log(`Redirecting to ${dashboardURL} for role: ${userRole}`);
+                window.location.href = dashboardURL;
+            } else {
+                console.error("User role not found");
+                alert("Could not determine your role. Please try logging in again.");
+            }
+        });
     }
-  } else {
-    alert("User is not signed in!");
-    window.location.href = "signin.html"; // Redirect to sign-in page if not logged in
-  }
-};
-
-// Ensure the correct profile link is set dynamically on login state
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    try {
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        const profileLink = `${userData.role.toLowerCase()}_dashboard.html`;
-        document.getElementById("profilePage").setAttribute("href", profileLink);
-      }
-    } catch (error) {
-      console.error("Error fetching user data: ", error);
-    }
-  }
 });
-
-// Event listener for the profile page button
-const dashboardButton = document.getElementById("profilePage");
-if (dashboardButton) {
-  dashboardButton.addEventListener("click", (event) => {
-    event.preventDefault(); // Prevent default link behavior
-    redirectToRoleDashboard();
-  });
-}
