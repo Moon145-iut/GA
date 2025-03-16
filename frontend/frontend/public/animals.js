@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const animals = [
         { name: 'Lion', sound: 'Roar', soundUrl: 'https://www.myinstants.com/media/sounds/lion-roar_1.mp3' },
         { name: 'Dog', sound: 'Woof', soundUrl: 'https://www.myinstants.com/media/sounds/dog-barking-sound-effect.mp3' },
-        { name: 'Cat', sound: 'Meow', soundUrl: 'https://www.myinstants.com/media/sounds/cat-meow_1.mp3' },
+        { name: 'Cat', sound: 'Meow', soundUrl: 'https://www.epidemicsound.com/sound-effects/tracks/0f6ea6bf-9189-46eb-9a47-774ddf14ec5b/' },
         { name: 'Elephant', sound: 'Trumpet', soundUrl: 'https://www.myinstants.com/media/sounds/elephant-trumpets-growls.mp3' },
         { name: 'Bird', sound: 'Chirp', soundUrl: 'https://www.myinstants.com/media/sounds/birds-sing.mp3' },
         { name: 'Monkey', sound: 'Ooh ooh', soundUrl: 'https://www.myinstants.com/media/sounds/monkey_5.mp3' },

@@ -122,22 +122,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load user uploaded videos from localStorage
   const loadUploadedVideos = () => {
-    const storedVideos = localStorage.getItem('uploadedVideos');
+    const storedVideos = localStorage.getItem('allUploadedVideos'); // Changed from 'uploadedVideos'
     const currentUser = JSON.parse(localStorage.getItem('userProfile') || '{}');
     
     if (storedVideos) {
       try {
         const videoMetadata = JSON.parse(storedVideos);
+        // All videos remain unfiltered
+        window.allVideos = [...videoMetadata, ...sampleVideos];
         // Filter videos for current user
         window.uploadedVideos = videoMetadata.filter(video => video.userId === currentUser.uid);
-        // All videos remain unfiltered
-        window.allVideos = [...videoMetadata];
       } catch (error) {
         console.error('Error parsing stored videos:', error);
-        window.allVideos = [];
+        window.allVideos = [...sampleVideos];
         window.uploadedVideos = [];
       }
     } else {
+      window.allVideos = [...sampleVideos];
       window.uploadedVideos = [];
     }
   };
@@ -145,11 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize with sample data if nothing in localStorage
   const initializeData = () => {
     loadUploadedVideos();
-    
-    // Only use sample data if no uploaded videos exist
-    if (window.allVideos.length === 0) {
-      window.allVideos = [...sampleVideos];
-    }
     
     window.allShorts = [...sampleShorts];
     
@@ -184,6 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Setup user profile menu functionality
   setupUserProfileMenu();
+
+  // Update profile picture from localStorage if available
+  const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  const profilePic = document.getElementById('profilePic');
+  if (userProfile.photoURL && profilePic) {
+    profilePic.src = userProfile.photoURL;
+  }
 });
 
 // Function to render videos
@@ -1507,19 +1510,22 @@ function getVideoDuration(videoFile) {
 
 // Modify the save to storage function
 function saveVideoToLocalStorage(video) {
-  const storedVideos = JSON.parse(localStorage.getItem('uploadedVideos') || '[]');
-  storedVideos.unshift(video);
+  const allStoredVideos = JSON.parse(localStorage.getItem('allUploadedVideos') || '[]');
+  allStoredVideos.unshift(video);
   
   try {
-    localStorage.setItem('uploadedVideos', JSON.stringify(storedVideos));
-    window.uploadedVideos = storedVideos.filter(v => v.userId === video.userId);
+    localStorage.setItem('allUploadedVideos', JSON.stringify(allStoredVideos));
+    // Update current user's videos
+    const currentUser = JSON.parse(localStorage.getItem('userProfile') || '{}');
+    window.uploadedVideos = allStoredVideos.filter(v => v.userId === currentUser.uid);
+    window.allVideos = [...allStoredVideos, ...sampleVideos];
   } catch (error) {
     console.error('Error saving to localStorage:', error);
     // If localStorage is full, remove oldest videos
-    while (storedVideos.length > 0) {
-      storedVideos.pop();
+    while (allStoredVideos.length > 0) {
+      allStoredVideos.pop();
       try {
-        localStorage.setItem('uploadedVideos', JSON.stringify(storedVideos));
+        localStorage.setItem('allUploadedVideos', JSON.stringify(allStoredVideos));
         break;
       } catch (e) {
         continue;
@@ -2041,10 +2047,10 @@ async function deleteVideo(videoId) {
     window.allVideos = window.allVideos.filter(v => v.id !== videoId);
     window.uploadedVideos = window.uploadedVideos.filter(v => v.id !== videoId);
 
-    // Update localStorage
-    const storedVideos = JSON.parse(localStorage.getItem('uploadedVideos') || '[]');
+    // Update localStorage - now using allUploadedVideos
+    const storedVideos = JSON.parse(localStorage.getItem('allUploadedVideos') || '[]');
     const updatedVideos = storedVideos.filter(v => v.id !== videoId);
-    localStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
+    localStorage.setItem('allUploadedVideos', JSON.stringify(updatedVideos));
 
     // Update UI
     showUserDashboard();
